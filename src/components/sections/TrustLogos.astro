@@ -44,7 +44,7 @@ const {
           return (
             <Image
               src={`https:${logoUrl}`}
-              alt={logo.fields?.title || 'Partner logo'}
+              alt={String(logo.fields?.title || 'Partner logo')}
               preset="logo"
               height={40}
               class="h-8 md:h-10 w-auto grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"

@@ -43,16 +43,16 @@ const [navigation, settings] = await Promise.all([
   canonicalUrl={canonicalUrl}
 >
   <Header
-    navigation={navigation}
+    navigation={navigation ?? undefined}
     transparent={transparentHeader}
   />
-  
+
   <main>
     <slot />
   </main>
-  
+
   <Footer
-    navigation={navigation}
-    settings={settings}
+    navigation={navigation ?? undefined}
+    settings={settings ?? undefined}
   />
 </BaseLayout>

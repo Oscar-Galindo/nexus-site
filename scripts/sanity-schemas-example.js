@@ -1,8 +1,8 @@
 /**
  * Example Sanity Schemas for WordPress Migration
- * 
+ *
  * Copy these schemas to your Sanity Studio project
- * 
+ *
  * In your Sanity project:
  * 1. cd sanity-studio/
  * 2. Create schemas/post.js, schemas/page.js, etc.
@@ -11,7 +11,7 @@
  */
 
 // schemas/post.js
-export default {
+export const postSchema = {
   name: 'post',
   title: 'Blog Post',
   type: 'document',
@@ -84,7 +84,7 @@ export default {
 };
 
 // schemas/page.js
-export default {
+export const pageSchema = {
   name: 'page',
   title: 'Page',
   type: 'document',
@@ -124,7 +124,7 @@ export default {
 };
 
 // schemas/category.js
-export default {
+export const categorySchema = {
   name: 'category',
   title: 'Category',
   type: 'document',
@@ -146,8 +146,9 @@ export default {
 };
 
 // schemas/index.js (combine all schemas)
-import post from './post';
-import page from './page';
-import category from './category';
+// import { postSchema } from './post';
+// import { pageSchema } from './page';
+// import { categorySchema } from './category';
+// export const schemaTypes = [postSchema, pageSchema, categorySchema];
 
-export const schemaTypes = [post, page, category];
+export const schemaTypes = [postSchema, pageSchema, categorySchema];

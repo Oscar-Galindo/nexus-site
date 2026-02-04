@@ -7,7 +7,7 @@
 export interface CloudinaryOptions {
   width?: number;
   height?: number;
-  quality?: number | 'auto';
+  quality?: number | 'auto' | 'auto:best' | 'auto:good' | 'auto:eco' | 'auto:low';
   format?: 'auto' | 'webp' | 'jpg' | 'png';
   crop?: 'fill' | 'fit' | 'scale' | 'crop' | 'thumb' | 'pad';
   gravity?: 'auto' | 'face' | 'center' | 'north' | 'south' | 'east' | 'west';

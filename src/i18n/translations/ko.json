@@ -16,20 +16,51 @@
     "email": "이메일",
     "phone": "전화번호",
     "message": "메시지",
+    "businessName": "회사명",
+    "website": "웹사이트",
+    "service": "관심 서비스",
+    "budget": "예산",
+    "timeline": "일정",
     "prayerRequest": "기도 요청",
     "keepPrivate": "이 요청을 비공개로 유지",
     "needsPastoralCare": "목사님과 상담을 원합니다",
     "submit": "제출",
     "sending": "전송 중...",
     "success": "감사합니다! 곧 연락드리겠습니다.",
-    "error": "오류가 발생했습니다. 다시 시도해 주세요."
+    "error": "오류가 발생했습니다. 다시 시도해 주세요.",
+    "required": "필수 항목입니다",
+    "invalidEmail": "유효한 이메일을 입력해 주세요"
   },
   "common": {
     "readMore": "더 읽기",
     "learnMore": "자세히 보기",
     "viewAll": "전체 보기",
     "watchNow": "지금 보기",
+    "listenNow": "지금 듣기",
+    "backTo": "돌아가기",
+    "share": "공유",
     "loading": "로딩 중...",
     "noResults": "결과가 없습니다"
+  },
+  "blog": {
+    "recentPosts": "최근 게시물",
+    "allPosts": "모든 게시물",
+    "categories": "카테고리",
+    "tags": "태그",
+    "postedOn": "게시일",
+    "by": "작성자"
+  },
+  "events": {
+    "upcomingEvents": "다가오는 행사",
+    "pastEvents": "지난 행사",
+    "allEvents": "모든 행사",
+    "when": "일시",
+    "where": "장소",
+    "register": "등록"
+  },
+  "footer": {
+    "copyright": "© {year} {siteName}. 모든 권리 보유.",
+    "privacyPolicy": "개인정보 처리방침",
+    "termsOfService": "서비스 이용약관"
   }
 }

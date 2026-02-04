@@ -1,26 +1,30 @@
 /**
  * Contentful Client - Online Nexus Marketing
- * 
+ *
  * Type-safe content fetching from Contentful CMS
  */
 
-import { createClient, type Entry, type Asset } from 'contentful';
+import { createClient, type Asset } from 'contentful';
 
 // Initialize Contentful client
 const spaceId = import.meta.env.CONTENTFUL_SPACE_ID || '';
 const accessToken = import.meta.env.CONTENTFUL_ACCESS_TOKEN || '';
 const environment = import.meta.env.CONTENTFUL_ENVIRONMENT || 'master';
 
-console.log('🔌 Initializing Contentful Client:');
-console.log('  Space ID:', spaceId ? `${spaceId.substring(0, 8)}...` : '❌ MISSING');
-console.log('  Access Token:', accessToken ? `${accessToken.substring(0, 8)}...` : '❌ MISSING');
-console.log('  Environment:', environment);
+// Only log during development
+if (import.meta.env.DEV) {
+  console.log('🔌 Initializing Contentful Client:');
+  console.log('  Space ID:', spaceId ? `${spaceId.substring(0, 8)}...` : '❌ MISSING');
+  console.log('  Access Token:', accessToken ? `${accessToken.substring(0, 8)}...` : '❌ MISSING');
+  console.log('  Environment:', environment);
+}
 
-export const client = createClient({
+// Create client only if credentials are available
+export const client = (spaceId && accessToken) ? createClient({
   space: spaceId,
   accessToken: accessToken,
   environment: environment,
-});
+}) : null;
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -222,15 +226,16 @@ export interface DisqualifierV2 {
  * Get Global Settings (singleton)
  */
 export async function getGlobalSettings(): Promise<GlobalSettings | null> {
+  if (!client) return null;
   try {
     const entries = await client.getEntries({
       content_type: 'globalSettings',
       include: 2,
       limit: 1,
     });
-    
+
     if (entries.items.length === 0) return null;
-    
+
     const item = entries.items[0];
     return item.fields as unknown as GlobalSettings;
   } catch (error) {
@@ -243,15 +248,16 @@ export async function getGlobalSettings(): Promise<GlobalSettings | null> {
  * Get Navigation (singleton)
  */
 export async function getNavigation(): Promise<Navigation | null> {
+  if (!client) return null;
   try {
     const entries = await client.getEntries({
       content_type: 'navigation',
       include: 2,
       limit: 1,
     });
-    
+
     if (entries.items.length === 0) return null;
-    
+
     const item = entries.items[0];
     return item.fields as unknown as Navigation;
   } catch (error) {
@@ -264,15 +270,16 @@ export async function getNavigation(): Promise<Navigation | null> {
  * Get Homepage Content
  */
 export async function getHomePage(): Promise<HomePage | null> {
+  if (!client) return null;
   try {
     const entries = await client.getEntries({
       content_type: 'homepageContent',
       include: 3, // Resolve nested references
       limit: 1,
     });
-    
+
     if (entries.items.length === 0) return null;
-    
+
     const item = entries.items[0];
     return item.fields as unknown as HomePage;
   } catch (error) {
@@ -285,6 +292,7 @@ export async function getHomePage(): Promise<HomePage | null> {
  * Get Standard Page by slug
  */
 export async function getStandardPage(slug: string): Promise<StandardPage | null> {
+  if (!client) return null;
   try {
     const entries = await client.getEntries({
       content_type: 'standardPage',
@@ -292,9 +300,9 @@ export async function getStandardPage(slug: string): Promise<StandardPage | null
       include: 3,
       limit: 1,
     });
-    
+
     if (entries.items.length === 0) return null;
-    
+
     const item = entries.items[0];
     return item.fields as unknown as StandardPage;
   } catch (error) {
@@ -307,12 +315,13 @@ export async function getStandardPage(slug: string): Promise<StandardPage | null
  * Get all Standard Pages (for generating routes)
  */
 export async function getAllStandardPages(): Promise<StandardPage[]> {
+  if (!client) return [];
   try {
     const entries = await client.getEntries({
       content_type: 'standardPage',
       include: 1,
     });
-    
+
     return entries.items.map(item => item.fields as unknown as StandardPage);
   } catch (error) {
     console.error('Error fetching all pages:', error);
@@ -324,12 +333,13 @@ export async function getAllStandardPages(): Promise<StandardPage[]> {
  * Get Pricing Tiers
  */
 export async function getPricingTiers(): Promise<PricingTier[]> {
+  if (!client) return [];
   try {
     const entries = await client.getEntries({
       content_type: 'pricingTier',
       order: ['fields.order'] as any,
     });
-    
+
     return entries.items.map(item => item.fields as unknown as PricingTier);
   } catch (error) {
     console.error('Error fetching pricing tiers:', error);
@@ -341,6 +351,7 @@ export async function getPricingTiers(): Promise<PricingTier[]> {
  * Get Hero Section by ID or reference
  */
 export async function getHeroSection(id: string): Promise<HeroSection | null> {
+  if (!client) return null;
   try {
     const entry = await client.getEntry(id);
     return entry.fields as unknown as HeroSection;
@@ -359,10 +370,13 @@ export async function getHeroSection(id: string): Promise<HeroSection | null> {
  */
 export function getAssetUrl(asset?: Asset): string | null {
   if (!asset?.fields?.file?.url) return null;
-  
+
   const url = asset.fields.file.url;
-  // Ensure URL is absolute
-  return url.startsWith('//') ? `https:${url}` : url;
+  // Ensure URL is absolute (url is always a string from Contentful's AssetFile)
+  if (typeof url === 'string') {
+    return url.startsWith('//') ? `https:${url}` : url;
+  }
+  return null;
 }
 
 /**
@@ -417,21 +431,26 @@ export function getRichTextPlainText(richText: any): string {
  * Note: 3JPGMyDDNZHXDgcyp3ioxr is the CONTENT TYPE ID, not entry ID
  */
 export async function getHomepageV2(): Promise<HomepageV2 | null> {
+  if (!client) return null;
   try {
-    console.log('Fetching Homepage V2 content...');
-    
+    if (import.meta.env.DEV) {
+      console.log('Fetching Homepage V2 content...');
+    }
+
     const entries = await client.getEntries({
       content_type: '3JPGMyDDNZHXDgcyp3ioxr',
       include: 2,
       limit: 1,
     });
-    
+
     if (entries.items.length === 0) {
       console.error('❌ No Homepage V2 entries found');
       return null;
     }
-    
-    console.log('✅ Homepage V2 entry found!');
+
+    if (import.meta.env.DEV) {
+      console.log('✅ Homepage V2 entry found!');
+    }
     const entry = entries.items[0];
     return entry.fields as unknown as HomepageV2;
   } catch (error: any) {
@@ -444,6 +463,7 @@ export async function getHomepageV2(): Promise<HomepageV2 | null> {
  * Get Problem Cards V2
  */
 export async function getProblemCardsV2(): Promise<ProblemCardV2[]> {
+  if (!client) return [];
   try {
     const entries = await client.getEntries({
       content_type: '4JTafNN1zX9FfPeN2LONmu',
@@ -459,6 +479,7 @@ export async function getProblemCardsV2(): Promise<ProblemCardV2[]> {
  * Get Process Steps V2
  */
 export async function getProcessStepsV2(): Promise<ProcessStepV2[]> {
+  if (!client) return [];
   try {
     const entries = await client.getEntries({
       content_type: '582z0MO83I7J3bsyxvYbId',
@@ -475,6 +496,7 @@ export async function getProcessStepsV2(): Promise<ProcessStepV2[]> {
  * Get Disqualifiers V2
  */
 export async function getDisqualifiersV2(): Promise<DisqualifierV2[]> {
+  if (!client) return [];
   try {
     const entries = await client.getEntries({
       content_type: '5jZFz4ma5WldqPAz69CNo9',

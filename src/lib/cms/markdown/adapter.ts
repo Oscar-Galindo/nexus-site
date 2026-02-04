@@ -174,7 +174,8 @@ export const markdownAdapter: CMSClient = {
       }
       
       if (options?.tag) {
-        posts = posts.filter(p => p.data.tags?.includes(options.tag));
+        const tag = options.tag;
+        posts = posts.filter(p => p.data.tags?.includes(tag));
       }
       
       if (options?.excludeSlug) {
