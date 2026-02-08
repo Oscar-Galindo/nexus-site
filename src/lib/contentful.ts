@@ -507,3 +507,53 @@ export async function getDisqualifiersV2(): Promise<DisqualifierV2[]> {
     return [];
   }
 }
+
+// ============================================================================
+// NAVIGATION
+// ============================================================================
+
+export interface NavMenuItem {
+  label: string;
+  url: string;
+  isActive?: boolean;
+}
+
+export interface NavCTAButton {
+  text: string;
+  url: string;
+  external?: boolean;
+}
+
+export interface SiteNavigation {
+  title: string;
+  logo?: Asset;
+  logoUrl?: string;
+  logoText?: string;
+  menuItems: NavMenuItem[];
+  ctaButton: NavCTAButton;
+}
+
+/**
+ * Get Site Navigation
+ */
+export async function getSiteNavigation(): Promise<SiteNavigation | null> {
+  if (!client) return null;
+  try {
+    const entries = await client.getEntries({
+      content_type: 'navigation',
+      include: 2,
+      limit: 1,
+    });
+
+    if (entries.items.length === 0) {
+      console.error('❌ No Navigation entry found');
+      return null;
+    }
+
+    const entry = entries.items[0];
+    return entry.fields as unknown as SiteNavigation;
+  } catch (error: any) {
+    console.error('❌ Error fetching Navigation:', error.message);
+    return null;
+  }
+}

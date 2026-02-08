@@ -1,0 +1,59 @@
+---
+/**
+ * Feature Card - Dark variant
+ * Used for "One Place", "One Person", "Real Updates" on About page
+ * Also used for service cards on What Gets Handled page
+ */
+
+export interface Props {
+  icon: string;
+  title: string;
+  description: string;
+  variant?: 'dark' | 'light';
+}
+
+const {
+  icon,
+  title,
+  description,
+  variant = 'dark',
+} = Astro.props;
+
+const isDark = variant === 'dark';
+---
+
+<div
+  class:list={[
+    'p-10 rounded-2xl flex flex-col justify-between h-full hover:-translate-y-1 transition-transform duration-300',
+    isDark
+      ? 'bg-black text-white'
+      : 'bg-white text-black border border-neutral-200 hover:border-neutral-400'
+  ]}
+>
+  <div>
+    <!-- Icon -->
+    <div class="mb-8">
+      <iconify-icon
+        icon={icon}
+        width="40"
+        class:list={[isDark ? 'text-white/80' : 'text-black']}
+      ></iconify-icon>
+    </div>
+
+    <!-- Title -->
+    <h3 class:list={[
+      'text-2xl font-semibold tracking-tight mb-4',
+      isDark ? 'text-white' : 'text-black'
+    ]}>
+      {title}
+    </h3>
+
+    <!-- Description -->
+    <p class:list={[
+      'font-body leading-relaxed text-base',
+      isDark ? 'text-neutral-400' : 'text-neutral-600'
+    ]}>
+      {description}
+    </p>
+  </div>
+</div>

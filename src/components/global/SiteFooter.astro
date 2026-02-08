@@ -1,0 +1,40 @@
+---
+/**
+ * Site Footer Component
+ * Black footer with logo, tagline, and copyright
+ */
+
+export interface Props {
+  logoUrl: string;
+  tagline?: string;
+  copyrightYear?: number;
+}
+
+const {
+  logoUrl,
+  tagline = 'Hand it off. It\'s handled.',
+  copyrightYear = new Date().getFullYear(),
+} = Astro.props;
+---
+
+<footer class="w-full py-24 px-6 md:px-12 bg-black text-white">
+  <div class="max-w-4xl mx-auto flex flex-col items-center text-center">
+    
+    <!-- Logo -->
+    <img
+      src={logoUrl}
+      alt="Online Nexus Marketing"
+      class="h-10 w-auto mb-8 invert opacity-90"
+    />
+
+    <!-- Tagline -->
+    <p class="text-2xl text-neutral-400 mb-12 max-w-2xl mx-auto font-body font-light tracking-wide">
+      {tagline}
+    </p>
+
+    <!-- Copyright -->
+    <div class="w-full pt-8 border-t border-neutral-800 flex flex-col md:flex-row justify-center items-center text-sm text-neutral-500">
+      <div>© {copyrightYear} Online Nexus Marketing. All rights reserved.</div>
+    </div>
+  </div>
+</footer>

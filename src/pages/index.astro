@@ -5,7 +5,7 @@
  */
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import MinimalistNav from '@/components/global/MinimalistNav.astro';
+import Navigation from '@/components/global/Navigation.astro';
 import MinimalistHero from '@/components/sections/MinimalistHero.astro';
 import ProblemSection from '@/components/sections/ProblemSection.astro';
 import SolutionSection from '@/components/sections/SolutionSection.astro';
@@ -61,7 +61,7 @@ const description = homepage.heroSubheadline;
   description={description}
 >
   <!-- Navigation -->
-  <MinimalistNav logoUrl={logoUrl} />
+  <Navigation currentPath="/" logoUrlOverride={logoUrl} />
 
   <!-- Hero -->
   <MinimalistHero

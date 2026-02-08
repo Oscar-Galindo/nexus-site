@@ -1,0 +1,134 @@
+---
+/**
+ * What Gets Handled Page
+ * Everything Digital. Handled.
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Navigation from '@/components/global/Navigation.astro';
+import SiteFooter from '@/components/global/SiteFooter.astro';
+import PageHero from '@/components/sections/PageHero.astro';
+import FeatureCardsGrid from '@/components/sections/FeatureCardsGrid.astro';
+import TwoColumnComparison from '@/components/sections/TwoColumnComparison.astro';
+import DarkCallout from '@/components/sections/DarkCallout.astro';
+import FinalCTA from '@/components/sections/FinalCTA.astro';
+
+// Page content - TODO: Move to Contentful
+const pageContent = {
+  seo: {
+    title: 'What Gets Handled | Online Nexus Marketing',
+    description: 'Digital operations ownership. Infrastructure, content, and systems handled.',
+  },
+  hero: {
+    headline: 'Everything Digital.<br>Handled.',
+    subheadline: 'You focus on running your organization. I handle the infrastructure that makes it visible, findable, and operational online.',
+    ctaText: 'See If This Fits',
+    ctaUrl: 'https://calendly.com/onlinenexusmarketing/strategy-meeting',
+  },
+  offYourPlate: {
+    title: 'What I Take Off Your Plate',
+    cards: [
+      {
+        icon: 'solar:server-linear',
+        title: 'Website & Hosting',
+        description: 'Domain, hosting, updates, security, and performance. You never touch it.',
+      },
+      {
+        icon: 'solar:pen-new-square-linear',
+        title: 'Content & Publishing',
+        description: 'Blog posts, pages, SEO. Written, formatted, published. You just approve.',
+      },
+      {
+        icon: 'solar:users-group-rounded-linear',
+        title: 'CRM & Automation',
+        description: 'Lead capture, follow-ups, email sequences, reminders. Runs without you.',
+      },
+    ],
+  },
+  theLine: {
+    title: 'The Line Is Clear',
+    leftTitle: 'I Own',
+    leftIcon: 'solar:user-check-rounded-linear',
+    leftItems: [
+      { text: 'Website infrastructure' },
+      { text: 'Content calendar and execution' },
+      { text: 'CRM workflows and automation' },
+      { text: 'Vendor coordination' },
+      { text: 'Technical troubleshooting' },
+    ],
+    rightTitle: 'You Own',
+    rightIcon: 'solar:user-circle-linear',
+    rightItems: [
+      { text: 'Business decisions' },
+      { text: 'Client relationships' },
+      { text: 'Final approvals' },
+      { text: 'Your time', highlight: true },
+    ],
+  },
+  darkCallout: {
+    headline: 'No Tickets.<br>No Requests.<br>No Waiting.',
+    subheadline: "This isn't support. It's ownership. When something needs to happen, it happens — because it's my job, not your task list.",
+  },
+  cta: {
+    headline: 'Ready to hand it off?',
+    ctaText: 'Book a Call',
+    ctaUrl: 'https://calendly.com/onlinenexusmarketing/strategy-meeting',
+    tagline: 'Get in. Arrive.',
+  },
+  footer: {
+    logoUrl: 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1769829242/onmlogo_bhcbxa.png',
+    tagline: 'Get in. Arrive.',
+  },
+};
+---
+
+<BaseLayout title={pageContent.seo.title} description={pageContent.seo.description}>
+  
+  <Navigation currentPath="/what-gets-handled" />
+
+  <PageHero
+    headline={pageContent.hero.headline}
+    subheadline={pageContent.hero.subheadline}
+    ctaText={pageContent.hero.ctaText}
+    ctaUrl={pageContent.hero.ctaUrl}
+    ctaExternal={true}
+  />
+
+  <FeatureCardsGrid
+    title={pageContent.offYourPlate.title}
+    items={pageContent.offYourPlate.cards}
+    variant="dark"
+  />
+
+  <TwoColumnComparison
+    title={pageContent.theLine.title}
+    leftTitle={pageContent.theLine.leftTitle}
+    leftIcon={pageContent.theLine.leftIcon}
+    leftItems={pageContent.theLine.leftItems}
+    leftIconBg="dark"
+    rightTitle={pageContent.theLine.rightTitle}
+    rightIcon={pageContent.theLine.rightIcon}
+    rightItems={pageContent.theLine.rightItems}
+    rightIconBg="light"
+    variant="light"
+  />
+
+  <DarkCallout
+    headline={pageContent.darkCallout.headline}
+    subheadline={pageContent.darkCallout.subheadline}
+  />
+
+  <FinalCTA
+    headline={pageContent.cta.headline}
+    ctaText={pageContent.cta.ctaText}
+    ctaUrl={pageContent.cta.ctaUrl}
+    ctaExternal={true}
+    tagline={pageContent.cta.tagline}
+    variant="light"
+  />
+
+  <SiteFooter
+    logoUrl={pageContent.footer.logoUrl}
+    tagline={pageContent.footer.tagline}
+  />
+</BaseLayout>

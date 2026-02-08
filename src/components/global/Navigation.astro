@@ -1,0 +1,167 @@
+---
+/**
+ * Navigation Component - Contentful Powered
+ * Fixed nav with centered links, CTA button
+ * Logo links to home, supports page navigation
+ */
+
+import { getSiteNavigation, getAssetUrl } from '@/lib/contentful';
+
+export interface Props {
+  currentPath?: string;
+  logoUrlOverride?: string;
+}
+
+const { currentPath = '', logoUrlOverride } = Astro.props;
+
+// Fetch navigation from Contentful
+const nav = await getSiteNavigation();
+
+// Fallback navigation if Contentful not configured
+const defaultNav = {
+  logoUrl: 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1769829242/onmlogo_bhcbxa.png',
+  menuItems: [
+    { label: 'What Gets Handled', url: '/what-gets-handled' },
+    { label: 'About', url: '/about' },
+    { label: 'FAQ', url: '/faq' },
+  ],
+  ctaButton: {
+    text: 'Book a Call',
+    url: 'https://calendly.com/onlinenexusmarketing/strategy-meeting',
+    external: true,
+  },
+};
+
+// Use Contentful data or fallback
+const logoUrl = logoUrlOverride || nav?.logoUrl || getAssetUrl(nav?.logo) || defaultNav.logoUrl;
+const menuItems = nav?.menuItems || defaultNav.menuItems;
+const ctaButton = nav?.ctaButton || defaultNav.ctaButton;
+
+// Helper to check if link is active
+function isActive(url: string): boolean {
+  if (url.startsWith('#')) return false;
+  return currentPath === url || currentPath.startsWith(url + '/');
+}
+---
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-neutral-100 transition-all duration-300">
+  <nav class="w-full h-20 px-6 md:px-12 flex justify-between items-center max-w-[1440px] mx-auto">
+    
+    <!-- Logo (Links to Home) -->
+    <a href="/" class="block z-20 group">
+      <img
+        src={logoUrl}
+        alt="Online Nexus Marketing"
+        class="h-8 md:h-10 w-auto object-contain group-hover:opacity-70 transition-opacity duration-200"
+      />
+    </a>
+
+    <!-- Centered Nav Links (Desktop) -->
+    <div class="hidden md:flex items-center gap-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+      {menuItems.map((item) => (
+        <a
+          href={item.url}
+          class:list={[
+            'text-sm font-medium transition-colors duration-200',
+            isActive(item.url)
+              ? 'text-black font-bold'
+              : 'text-neutral-500 hover:text-black'
+          ]}
+        >
+          {item.label}
+        </a>
+      ))}
+    </div>
+
+    <!-- CTA Button (Right) -->
+    <a
+      href={ctaButton.url}
+      target={ctaButton.external ? '_blank' : undefined}
+      rel={ctaButton.external ? 'noopener noreferrer' : undefined}
+      class="z-20 flex items-center gap-1 px-5 py-2 bg-black text-white text-xs md:text-sm font-medium rounded-full hover:bg-neutral-800 transition-colors duration-200 shadow-sm hover:shadow-md"
+    >
+      {ctaButton.text} <span>→</span>
+    </a>
+
+    <!-- Mobile Menu Button -->
+    <button
+      id="mobile-menu-btn"
+      class="md:hidden z-20 p-2 -mr-2"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+    >
+      <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-black menu-open"></iconify-icon>
+      <iconify-icon icon="solar:close-circle-linear" width="24" class="text-black menu-close hidden"></iconify-icon>
+    </button>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="md:hidden hidden absolute top-20 left-0 right-0 bg-white border-b border-neutral-100 shadow-lg">
+    <div class="px-6 py-6 space-y-4">
+      {menuItems.map((item) => (
+        <a
+          href={item.url}
+          class:list={[
+            'block text-lg font-medium py-2 transition-colors',
+            isActive(item.url)
+              ? 'text-black'
+              : 'text-neutral-600 hover:text-black'
+          ]}
+        >
+          {item.label}
+        </a>
+      ))}
+      <div class="pt-4 border-t border-neutral-100">
+        <a
+          href={ctaButton.url}
+          target={ctaButton.external ? '_blank' : undefined}
+          class="block w-full text-center px-6 py-3 bg-black text-white font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+        >
+          {ctaButton.text} →
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Spacer to prevent content from going under fixed nav -->
+<div class="h-20" aria-hidden="true"></div>
+
+<script>
+  // Mobile menu toggle
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuOpenIcon = menuBtn?.querySelector('.menu-open');
+  const menuCloseIcon = menuBtn?.querySelector('.menu-close');
+
+  menuBtn?.addEventListener('click', () => {
+    const isOpen = mobileMenu?.classList.toggle('hidden') === false;
+    menuBtn.setAttribute('aria-expanded', String(isOpen));
+    menuOpenIcon?.classList.toggle('hidden', isOpen);
+    menuCloseIcon?.classList.toggle('hidden', !isOpen);
+  });
+
+  // Close menu when clicking a link
+  mobileMenu?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      menuBtn?.setAttribute('aria-expanded', 'false');
+      menuOpenIcon?.classList.remove('hidden');
+      menuCloseIcon?.classList.add('hidden');
+    });
+  });
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(this: HTMLAnchorElement, e: Event) {
+      const href = this.getAttribute('href');
+      if (href && href !== '#') {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+  });
+</script>

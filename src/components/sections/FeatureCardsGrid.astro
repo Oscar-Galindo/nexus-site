@@ -1,0 +1,52 @@
+---
+/**
+ * Feature Cards Grid Section
+ * Grid of 3 feature cards (dark or light variant)
+ */
+
+import FeatureCard from '@/components/cards/FeatureCard.astro';
+
+export interface FeatureItem {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export interface Props {
+  title?: string;
+  items: FeatureItem[];
+  variant?: 'dark' | 'light';
+  columns?: 2 | 3;
+}
+
+const {
+  title,
+  items,
+  variant = 'dark',
+  columns = 3,
+} = Astro.props;
+
+const gridCols = columns === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3';
+---
+
+<section class="w-full py-24 px-6 md:px-12 bg-white border-t border-neutral-100">
+  <div class="max-w-7xl mx-auto">
+    
+    {title && (
+      <h2 class="text-3xl md:text-4xl font-semibold mb-16 tracking-tight text-black">
+        {title}
+      </h2>
+    )}
+
+    <div class={`grid ${gridCols} gap-6`}>
+      {items.map((item) => (
+        <FeatureCard
+          icon={item.icon}
+          title={item.title}
+          description={item.description}
+          variant={variant}
+        />
+      ))}
+    </div>
+  </div>
+</section>
