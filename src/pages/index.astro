@@ -1,131 +1,70 @@
 ---
 /**
- * Homepage - Black & White Minimalist Design
- * Digital operations without the mess.
+ * Homepage
+ * Renders the home page from Contentful modular page builder
  */
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Navigation from '@/components/global/Navigation.astro';
-import MinimalistHero from '@/components/sections/MinimalistHero.astro';
-import ProblemSection from '@/components/sections/ProblemSection.astro';
-import SolutionSection from '@/components/sections/SolutionSection.astro';
-import ResponsibilitySection from '@/components/sections/ResponsibilitySection.astro';
-import ProcessSection from '@/components/sections/ProcessSection.astro';
-import AboutSection from '@/components/sections/AboutSection.astro';
-import DisqualificationSection from '@/components/sections/DisqualificationSection.astro';
-import MinimalistFooter from '@/components/global/MinimalistFooter.astro';
-import {
-  getHomepageV2,
-  getProblemCardsV2,
-  getProcessStepsV2,
-  getDisqualifiersV2,
-  getAssetUrl,
-} from '@/lib/contentful';
+import SiteFooter from '@/components/global/SiteFooter.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+import { getPageBySlug } from '@/lib/contentful';
 
-// Fetch content from Contentful
-const [homepage, problemCards, processSteps, disqualifiers] = await Promise.all([
-  getHomepageV2(),
-  getProblemCardsV2(),
-  getProcessStepsV2(),
-  getDisqualifiersV2(),
-]);
+// Fetch home page from Contentful
+const page = await getPageBySlug('/');
 
-// Check if Contentful is configured
-if (!homepage) {
-  throw new Error('Contentful not configured or Homepage V2 entry not found. Please add CONTENTFUL_SPACE_ID and CONTENTFUL_ACCESS_TOKEN to .env');
-}
+// Default content if Contentful is not configured or page not found
+const defaultTitle = 'Online Nexus Marketing';
+const footerContent = {
+  logoUrl: 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1769829242/onmlogo_bhcbxa.png',
+  tagline: 'Hand it off. It\'s handled.',
+};
 
-// Hybrid image logic: URL first, then Asset fallback
-const heroImageUrl = homepage.heroImageUrl || getAssetUrl(homepage.heroImage);
-const aboutImageUrl = homepage.aboutImageUrl || getAssetUrl(homepage.aboutImage);
-const logoUrl = homepage.logoUrl || getAssetUrl(homepage.logo);
-
-// Validate required images
-if (!heroImageUrl) {
-  throw new Error('Hero image is required. Please add heroImageUrl or upload heroImage in Contentful.');
-}
-if (!aboutImageUrl) {
-  throw new Error('About image is required. Please add aboutImageUrl or upload aboutImage in Contentful.');
-}
-if (!logoUrl) {
-  throw new Error('Logo is required. Please add logoUrl or upload logo in Contentful.');
-}
-
-// SEO
-const title = homepage.title;
-const description = homepage.heroSubheadline;
+const title = page?.title || defaultTitle;
 ---
 
-<BaseLayout
-  title={title}
-  description={description}
->
-  <!-- Navigation -->
-  <Navigation currentPath="/" logoUrlOverride={logoUrl} />
+<BaseLayout title={title}>
+  
+  <Navigation currentPath="/" />
 
-  <!-- Hero -->
-  <MinimalistHero
-    headline={homepage.heroHeadline}
-    subheadline={homepage.heroSubheadline}
-    targetAudience={homepage.heroTargetAudience}
-    imageUrl={heroImageUrl}
-    imageCaption={homepage.heroImageCaption}
-  />
+  {page ? (
+    <>
+      {/* Render Hero Section first if present */}
+      {page.heroSection && (
+        <SectionRenderer section={page.heroSection} index={0} />
+      )}
+      {/* Then render other sections */}
+      {page.sections.map((section, index) => (
+        <SectionRenderer section={section} index={index + 1} />
+      ))}
+    </>
+  ) : (
+    <!-- Fallback content if no page or sections -->
+    <section class="w-full pt-40 pb-24 md:pt-52 md:pb-32 px-6 md:px-12 bg-white text-black">
+      <div class="max-w-5xl mx-auto">
+        <h1 class="text-6xl md:text-8xl font-semibold tracking-tighter leading-[0.9] text-black mb-10">
+          Hand It Off.<br/>It's Handled.
+        </h1>
+        <div class="max-w-2xl">
+          <p class="text-xl md:text-2xl text-neutral-600 font-body font-light leading-relaxed mb-10">
+            Your website, email, CRM, and content — handled by one person who owns it all.
+          </p>
+          <a
+            href="https://calendly.com/onlinenexusmarketing/strategy-meeting"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center px-8 py-4 bg-black text-white text-base md:text-lg font-medium rounded-lg hover:bg-neutral-800 transition-all duration-300 group"
+          >
+            Book a Call
+            <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
 
-  <!-- Problem -->
-  <ProblemSection
-    title={homepage.problemSectionTitle}
-    cards={problemCards}
-  />
-
-  <!-- Solution (Dark) -->
-  <SolutionSection
-    headline={homepage.solutionHeadline}
-    headlineAccent={homepage.solutionHeadlineAccent}
-    point1Title={homepage.solutionPoint1Title}
-    point1Description={homepage.solutionPoint1Description}
-    point2Title={homepage.solutionPoint2Title}
-    point2Description={homepage.solutionPoint2Description}
-    point3Title={homepage.solutionPoint3Title}
-    point3Description={homepage.solutionPoint3Description}
-  />
-
-  <!-- Responsibility -->
-  <ResponsibilitySection
-    headline={homepage.responsibilityHeadline}
-    subheadline={homepage.responsibilitySubheadline}
-  />
-
-  <!-- Process -->
-  <ProcessSection
-    headline={homepage.processHeadline}
-    subheadline={homepage.processSubheadline}
-    steps={processSteps}
-    quote={homepage.processQuote}
-  />
-
-  <!-- About -->
-  <AboutSection
-    badge={homepage.aboutBadge}
-    name={homepage.aboutName}
-    title={homepage.aboutTitle}
-    bioPrimary={homepage.aboutBioPrimary}
-    bioSecondary={homepage.aboutBioSecondary}
-    imageUrl={aboutImageUrl}
-  />
-
-  <!-- Disqualification -->
-  <DisqualificationSection
-    headline={homepage.disqualifierHeadline}
-    disqualifiers={disqualifiers}
-  />
-
-  <!-- Footer CTA -->
-  <MinimalistFooter
-    headline={homepage.footerHeadline}
-    subheadline={homepage.footerSubheadline}
-    ctaText={homepage.footerCtaText}
-    ctaLink={homepage.footerCtaLink}
-    logoUrl={logoUrl}
+  <SiteFooter
+    logoUrl={footerContent.logoUrl}
+    tagline={footerContent.tagline}
   />
 </BaseLayout>

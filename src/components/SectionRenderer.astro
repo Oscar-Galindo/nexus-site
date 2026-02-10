@@ -1,0 +1,965 @@
+---
+/**
+ * Section Renderer
+ * Dynamically renders page sections based on their Contentful type
+ */
+
+export interface Props {
+  section: any;
+  index?: number;
+}
+
+const { section, index = 0 } = Astro.props;
+
+const contentType = section.contentType;
+const f = section; // fields shorthand
+const internalName = f.internalName || '';
+
+// Icon mappings for problem cards
+const problemIcons = [
+  'solar:link-broken-linear',
+  'solar:danger-triangle-linear',
+  'solar:clock-circle-linear'
+];
+
+// Icon mappings for service cards
+const serviceIcons = [
+  'solar:server-linear',
+  'solar:pen-new-square-linear',
+  'solar:videocamera-record-linear',
+  'solar:users-group-rounded-linear',
+  'solar:case-linear',
+  'solar:shield-check-linear'
+];
+
+// Solution icons
+const solutionIcons = [
+  'solar:user-check-rounded-linear',
+  'solar:settings-minimalistic-linear'
+];
+
+// What Gets Handled icons
+const wghIcons = [
+  'solar:server-linear',
+  'solar:pen-new-square-linear',
+  'solar:users-group-rounded-linear'
+];
+
+// About page icons
+const howWeWorkIcons = [
+  'solar:door-open-linear',
+  'solar:user-circle-linear',
+  'solar:bell-bing-linear'
+];
+
+// Detect section variants
+const isProblemSection = internalName.includes('Problem');
+const isSolutionSection = internalName.includes('Solution');
+const isServiceSection = internalName.includes('Scope') || internalName.includes('Services');
+const isWhatITakeOffYourPlate = internalName.includes('What I Take Off Your Plate');
+const isHowWeWorkTogether = internalName.includes('How We Work');
+const isLimitedCapacity = internalName.includes('Limited Capacity');
+const isAboutSection = internalName.includes('About');
+const isDisqualification = internalName.includes('Disqualification');
+const isNoTickets = internalName.includes('No Tickets');
+const isResume = internalName.includes('Résumé');
+const isWhoThisIsFor = internalName.includes('Who This Is For');
+const isRealityLiving = internalName.includes('Reality You');
+const isAfterYouBook = internalName.includes('After You Book');
+---
+
+{/* Hero Section */}
+{contentType === 'heroSection' && (
+  <section class="w-full pt-40 pb-24 md:pt-52 md:pb-32 px-6 md:px-12 bg-white text-black">
+    <div class:list={[
+      'mx-auto',
+      f.image ? 'max-w-7xl grid md:grid-cols-12 gap-12 items-center relative' : 'max-w-5xl'
+    ]}>
+      {/* Content Column */}
+      <div class:list={[f.image ? 'md:col-span-7 lg:col-span-8' : '']}>
+        {f.statusPill && (
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-100 mb-8">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span class="text-xs font-semibold text-green-700 tracking-wide uppercase">{f.statusPill}</span>
+          </div>
+        )}
+        <h1 class="text-6xl md:text-8xl lg:text-9xl text-black font-semibold tracking-tighter leading-[0.9] mb-10 whitespace-pre-line">
+          {f.headline}
+        </h1>
+        <div class="max-w-2xl">
+          {f.subheadline && (
+            <p class="text-xl md:text-2xl text-neutral-600 font-body leading-relaxed font-light mb-10">
+              {f.subheadline}
+            </p>
+          )}
+          {f.body && (
+            <p class="text-lg text-black font-medium font-body mb-8 whitespace-pre-line">{f.body}</p>
+          )}
+          {f.ctaLabel && (
+            <a
+              href={f.ctaUrl?.startsWith('http') ? f.ctaUrl : 'https://calendly.com/onlinenexusmarketing/strategy-meeting'}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center justify-center px-8 py-4 bg-black text-white text-base md:text-lg font-medium rounded-lg hover:bg-neutral-800 transition-all duration-300 group"
+            >
+              {f.ctaLabel}
+              <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Image Column */}
+      {f.image && (
+        <div class="md:col-span-5 lg:col-span-4 relative">
+          <div class="relative w-full aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border border-neutral-100 bg-neutral-100">
+            <img
+              src={f.image.fields?.file?.url?.startsWith('//') ? 'https:' + f.image.fields.file.url : f.image.fields?.file?.url}
+              alt={f.image.fields?.title || f.headline || 'Hero image'}
+              class="absolute inset-0 w-full h-full object-cover grayscale-[10%] hover:grayscale-0 transition-all duration-700"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-50"></div>
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Card Section - Problem Variant (gray bg, icons) */}
+{contentType === 'cardSection' && isProblemSection && (
+  <section id="reality" class="w-full py-20 px-6 md:px-12 bg-neutral-50 scroll-mt-20">
+    <div class="max-w-7xl mx-auto">
+      {f.label && (
+        <span class="text-xs font-semibold uppercase tracking-widest text-neutral-500 mb-3 block">{f.label}</span>
+      )}
+      {f.heading && (
+        <h2 class="text-3xl md:text-4xl font-medium text-black mb-12 tracking-tight">{f.heading}</h2>
+      )}
+      {f.cards && f.cards.length > 0 && (
+        <div class="grid md:grid-cols-3 gap-6">
+          {f.cards.map((card: any, i: number) => (
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-neutral-100 flex flex-col justify-between h-full hover:border-neutral-300 transition-colors duration-300">
+              <div class="mb-6">
+                <iconify-icon icon={problemIcons[i] || 'solar:widget-linear'} width="32" class="text-black"></iconify-icon>
+              </div>
+              <div>
+                <h3 class="text-xl font-medium mb-3">{card.fields?.title}</h3>
+                <p class="text-neutral-500 font-body leading-relaxed text-sm">{card.fields?.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Card Section - Solution Variant (dark bg, 2-column with visual) */}
+{contentType === 'cardSection' && isSolutionSection && (
+  <section id="ownership" class="w-full py-24 md:py-32 px-6 md:px-12 bg-black text-white scroll-mt-20">
+    <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
+      <div>
+        {f.label && (
+          <span class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-4 block">{f.label}</span>
+        )}
+        {f.heading && (
+          <h2 class="text-4xl md:text-5xl font-medium tracking-tight leading-tight mb-12 text-white">
+            {f.heading}
+          </h2>
+        )}
+        <div class="space-y-12">
+          {f.cards?.map((card: any, i: number) => (
+            <div class="flex gap-6">
+              <div class="shrink-0 mt-1">
+                <iconify-icon icon={solutionIcons[i] || 'solar:check-circle-linear'} width="28" class="text-white"></iconify-icon>
+              </div>
+              <div>
+                <h3 class="text-xl font-medium text-white mb-2">{card.fields?.title}</h3>
+                <p class="text-neutral-400 font-body leading-relaxed text-base">{card.fields?.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Visual Flow Diagram */}
+      <div class="relative w-full flex flex-col items-center justify-center">
+        <div class="w-full max-w-sm bg-neutral-900 rounded-xl p-6 border border-neutral-800 text-center relative z-10">
+          <h4 class="text-lg font-medium text-white">Vision & Strategy</h4>
+          <p class="text-neutral-500 text-sm mt-1">(You)</p>
+        </div>
+        <div class="h-12 w-px bg-neutral-700 my-2 relative">
+          <iconify-icon icon="solar:arrow-down-linear" class="absolute -bottom-3 -left-2 text-neutral-500" width="16"></iconify-icon>
+        </div>
+        <div class="w-full max-w-sm bg-white rounded-xl p-6 border border-white text-center relative z-20 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+          <h4 class="text-lg font-medium text-black">Online Nexus Ownership</h4>
+          <div class="flex justify-center gap-1.5 mt-3 opacity-80">
+            <div class="w-2 h-2 bg-black rounded-sm"></div>
+            <div class="w-2 h-2 bg-black rounded-sm"></div>
+            <div class="w-2 h-2 bg-black rounded-sm"></div>
+          </div>
+        </div>
+        <div class="h-12 w-px bg-neutral-700 my-2 relative">
+          <iconify-icon icon="solar:arrow-down-linear" class="absolute -bottom-3 -left-2 text-neutral-500" width="16"></iconify-icon>
+        </div>
+        <div class="w-full max-w-sm bg-neutral-900 rounded-xl p-6 border border-neutral-800 text-center relative z-10">
+          <h4 class="text-lg font-medium text-white">Business Result</h4>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+{/* Card Section - How We Work Together (dark cards, About page) */}
+{contentType === 'cardSection' && isHowWeWorkTogether && (
+  <section class="w-full py-24 px-6 md:px-12 bg-white border-t border-neutral-100">
+    <div class="max-w-7xl mx-auto">
+      {f.heading && (
+        <h2 class="text-3xl md:text-4xl font-semibold text-black mb-16 tracking-tight">{f.heading}</h2>
+      )}
+      {f.cards && f.cards.length > 0 && (
+        <div class="grid md:grid-cols-3 gap-6">
+          {f.cards.map((card: any, i: number) => (
+            <div class="bg-black p-10 rounded-2xl flex flex-col justify-between h-full text-white hover:-translate-y-1 transition-transform duration-300">
+              <div>
+                <div class="mb-8 text-white/80">
+                  <iconify-icon icon={howWeWorkIcons[i] || 'solar:widget-linear'} width="40"></iconify-icon>
+                </div>
+                <h3 class="text-2xl font-semibold tracking-tight mb-4 text-white">{card.fields?.title}</h3>
+                <p class="text-base text-neutral-400 font-body leading-relaxed">{card.fields?.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Card Section - What I Take Off Your Plate (dark cards with icons) */}
+{contentType === 'cardSection' && isWhatITakeOffYourPlate && (
+  <section class="w-full py-24 px-6 md:px-12 bg-white border-t border-neutral-100">
+    <div class="max-w-7xl mx-auto">
+      {f.heading && (
+        <h2 class="text-3xl md:text-4xl font-semibold text-black mb-16 tracking-tight">{f.heading}</h2>
+      )}
+      {f.cards && f.cards.length > 0 && (
+        <div class="grid md:grid-cols-3 gap-6">
+          {f.cards.map((card: any, i: number) => (
+            <div class="bg-black p-10 rounded-2xl flex flex-col justify-between h-full text-white group hover:translate-y-[-4px] transition-transform duration-300">
+              <div class="mb-8">
+                <iconify-icon icon={wghIcons[i] || 'solar:widget-linear'} width="40" class="text-white opacity-80"></iconify-icon>
+              </div>
+              <div>
+                <h3 class="text-2xl font-semibold mb-4 tracking-tight text-white">{card.fields?.title}</h3>
+                <p class="text-neutral-400 font-body leading-relaxed text-base">{card.fields?.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Card Section - Services Variant (icons grid) */}
+{contentType === 'cardSection' && isServiceSection && (
+  <section id="scope" class="w-full py-24 px-6 md:px-12 bg-white">
+    <div class="max-w-6xl mx-auto">
+      {f.heading && (
+        <h2 class="text-3xl md:text-4xl font-medium text-black mb-12 tracking-tight">{f.heading}</h2>
+      )}
+      {f.cards && f.cards.length > 0 && (
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {f.cards.map((card: any, i: number) => (
+            <div class="p-8 border border-neutral-200 rounded-xl hover:border-neutral-400 transition-all duration-300">
+              <iconify-icon icon={serviceIcons[i] || 'solar:widget-linear'} width="28" class="text-black mb-5"></iconify-icon>
+              <h3 class="text-lg font-medium mb-3">{card.fields?.title}</h3>
+              <p class="text-neutral-600 font-body text-sm leading-relaxed">{card.fields?.body}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Card Section - Default (fallback) */}
+{contentType === 'cardSection' && !isProblemSection && !isSolutionSection && !isServiceSection && !isWhatITakeOffYourPlate && !isHowWeWorkTogether && (
+  <section class="w-full py-24 px-6 md:px-12 bg-white border-t border-neutral-100">
+    <div class="max-w-7xl mx-auto">
+      {f.label && (
+        <span class="text-xs font-semibold uppercase tracking-widest text-neutral-500 mb-3 block">{f.label}</span>
+      )}
+      {f.heading && (
+        <h2 class="text-3xl md:text-4xl font-medium text-black mb-12 tracking-tight">{f.heading}</h2>
+      )}
+      {f.cards && f.cards.length > 0 && (
+        <div class:list={[
+          'grid gap-6',
+          f.cards.length === 2 ? 'md:grid-cols-2' : 
+          f.cards.length === 3 ? 'md:grid-cols-3' : 
+          f.cards.length >= 4 ? 'md:grid-cols-2 lg:grid-cols-3' : ''
+        ]}>
+          {f.cards.map((card: any) => (
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-neutral-100 flex flex-col justify-between h-full hover:border-neutral-300 transition-colors duration-300">
+              <div>
+                <h3 class="text-xl font-medium mb-3">{card.fields?.title}</h3>
+                <p class="text-neutral-500 font-body leading-relaxed text-sm">{card.fields?.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Text Section - Limited Capacity + CTA Variant (Home page) */}
+{contentType === 'textSection' && isLimitedCapacity && !internalName.includes('WAI') && (
+  <section class="w-full py-24 px-6 md:px-12 bg-neutral-50">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
+      {/* Card 1 (Light) */}
+      <div class="bg-white p-10 md:p-12 rounded-2xl border border-neutral-200 shadow-sm flex flex-col h-full">
+        {f.label && (
+          <span class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-6 block">{f.label}</span>
+        )}
+        {f.heading && (
+          <h3 class="text-3xl font-medium mb-6">{f.heading}</h3>
+        )}
+        {f.body && (
+          <p class="text-neutral-600 font-body text-lg leading-relaxed mb-8">{f.body}</p>
+        )}
+        {f.items?.bulletPoints && (
+          <div class="mt-auto space-y-3">
+            {f.items.bulletPoints.map((point: string) => (
+              <div class="flex items-center gap-3 text-neutral-500 font-body">
+                <iconify-icon icon="solar:close-circle-linear" class="text-neutral-400"></iconify-icon>
+                {point}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Card 2 (Dark CTA) */}
+      {f.items?.cta && (
+        <div class="bg-black p-10 md:p-12 rounded-2xl border border-neutral-800 shadow-xl flex flex-col h-full text-white">
+          {f.items.cta.label && (
+            <span class="text-xs font-semibold uppercase tracking-widest text-neutral-500 mb-6 block">{f.items.cta.label}</span>
+          )}
+          {f.items.cta.heading && (
+            <h3 class="text-3xl font-medium mb-6 text-white">{f.items.cta.heading}</h3>
+          )}
+          {f.items.cta.body && (
+            <p class="text-neutral-400 font-body text-lg leading-relaxed mb-10">{f.items.cta.body}</p>
+          )}
+          {f.items.cta.ctaLabel && f.items.cta.ctaUrl && (
+            <div class="mt-auto">
+              <a
+                href={f.items.cta.ctaUrl.startsWith('http') ? f.items.cta.ctaUrl : 'https://calendly.com/onlinenexusmarketing/strategy-meeting'}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex w-full items-center justify-center px-6 py-4 bg-white text-black text-base font-medium rounded-lg hover:bg-neutral-200 transition-colors duration-200 group"
+              >
+                {f.items.cta.ctaLabel} <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Text Section - About Variant (Home page - Oscar with image on right) */}
+{contentType === 'textSection' && isAboutSection && !internalName.includes('Oscar') && !internalName.includes('WAI') && (
+  <section id="about" class="w-full py-24 px-6 md:px-12 bg-neutral-50 border-t border-neutral-200 scroll-mt-20">
+    <div class="max-w-7xl mx-auto grid md:grid-cols-12 gap-12 items-center">
+      <div class="md:col-span-7">
+        {f.label && (
+          <span class="inline-block py-1 px-3 rounded-full bg-white border border-neutral-200 text-xs font-semibold uppercase tracking-wider mb-6">
+            {f.label}
+          </span>
+        )}
+        {f.heading && (
+          <h2 class="text-4xl md:text-5xl font-medium tracking-tight mb-2 text-black">{f.heading}</h2>
+        )}
+        {f.subheading && (
+          <h3 class="text-xl text-neutral-500 mb-8 font-medium">{f.subheading}</h3>
+        )}
+        {f.body && (
+          <div class="space-y-6 max-w-2xl">
+            {f.body.split('\n\n').map((para: string, i: number) => (
+              i === 0 ? (
+                <p class="text-lg text-neutral-800 font-body leading-relaxed font-medium">{para}</p>
+              ) : i === f.body.split('\n\n').length - 1 ? (
+                <div class="flex items-center gap-3 pt-4 text-black font-medium">
+                  <iconify-icon icon="solar:chat-square-check-linear" width="24"></iconify-icon>
+                  <span>{para}</span>
+                </div>
+              ) : (
+                <p class="text-lg text-neutral-600 font-body leading-relaxed">{para}</p>
+              )
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div class="md:col-span-5 relative">
+        <div class="relative w-full aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border border-neutral-100 bg-white">
+          <img
+            src={f.image?.fields?.file?.url ? (f.image.fields.file.url.startsWith('//') ? 'https:' + f.image.fields.file.url : f.image.fields.file.url) : 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1768967465/DSC07006_mh1pnc.jpg'}
+            alt={f.image?.fields?.title || f.heading || 'Oscar Galindo'}
+            class="absolute inset-0 w-full h-full object-cover"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-30"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+{/* Text Section - Disqualification Variant */}
+{contentType === 'textSection' && isDisqualification && (
+  <section class="w-full py-20 px-6 md:px-12 bg-white">
+    <div class="max-w-3xl mx-auto text-center">
+      {f.heading && (
+        <h2 class="text-2xl font-medium mb-8">{f.heading}</h2>
+      )}
+      <div class="bg-neutral-50 rounded-xl p-8 border border-neutral-100 shadow-sm text-left">
+        {f.items && Array.isArray(f.items) && (
+          <ul class="space-y-6">
+            {f.items.map((item: string) => (
+              <li class="flex items-center gap-4 text-neutral-600 font-body">
+                <iconify-icon icon="solar:close-circle-linear" class="text-neutral-400 shrink-0" width="20"></iconify-icon>
+                {item}
+              </li>
+            ))}
+          </ul>
+        )}
+        {f.closingLine && (
+          <div class="mt-8 pt-8 border-t border-neutral-200 text-center font-medium text-black">
+            {f.closingLine}
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+)}
+
+{/* Text Section - The Reality You're Living */}
+{contentType === 'textSection' && isRealityLiving && (
+  <section class="w-full py-24 px-6 md:px-12 bg-white text-black border-t border-neutral-100">
+    <div class="max-w-4xl mx-auto">
+      {f.heading && (
+        <h2 class="text-3xl md:text-4xl font-semibold mb-16 tracking-tight text-black">{f.heading}</h2>
+      )}
+      {f.body && (
+        <p class="text-xl font-light font-body text-neutral-600 leading-relaxed">{f.body}</p>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Text Section - About Oscar (two column with photo) */}
+{contentType === 'textSection' && isAboutSection && internalName.includes('Oscar') && (
+  <section class="w-full py-24 px-6 md:px-12 bg-white text-black border-t border-neutral-100">
+    <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-16 items-start">
+      {/* Photo */}
+      <div class="relative w-full aspect-square bg-neutral-100 rounded-lg overflow-hidden">
+        <img
+          src={f.image?.fields?.file?.url ? (f.image.fields.file.url.startsWith('//') ? 'https:' + f.image.fields.file.url : f.image.fields.file.url) : 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1768967465/DSC07006_mh1pnc.jpg'}
+          alt={f.image?.fields?.title || f.heading || 'Oscar Galindo'}
+          class="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Content */}
+      <div class="flex flex-col justify-center h-full pt-8 md:pt-0">
+        {f.heading && (
+          <h2 class="text-3xl md:text-4xl font-semibold mb-8 tracking-tight text-black">{f.heading}</h2>
+        )}
+        {f.body && (
+          <div class="text-lg font-body leading-relaxed text-neutral-600 space-y-6 font-normal">
+            {f.body.split('\n\n').map((para: string) => (
+              <p>{para}</p>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+)}
+
+{/* Text Section - Limited Capacity (About page, centered) */}
+{contentType === 'textSection' && isLimitedCapacity && internalName.includes('WAI') && (
+  <section class="w-full py-24 px-6 md:px-12 bg-white text-black border-t border-neutral-100">
+    <div class="max-w-4xl mx-auto text-center">
+      {f.heading && (
+        <h2 class="text-3xl md:text-4xl font-semibold mb-8 tracking-tight text-black">{f.heading}</h2>
+      )}
+      {f.body && (
+        <p class="text-lg md:text-xl font-body font-light leading-relaxed text-neutral-600 max-w-2xl mx-auto">{f.body}</p>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Text Section - After You Book */}
+{contentType === 'textSection' && isAfterYouBook && (
+  <section class="w-full py-24 px-6 md:px-12 bg-white text-black border-t border-neutral-100">
+    <div class="max-w-4xl mx-auto">
+      {f.heading && (
+        <h2 class="text-3xl md:text-4xl font-semibold mb-12 tracking-tight text-black">{f.heading}</h2>
+      )}
+      {f.body && (
+        <p class="text-lg md:text-xl font-light font-body text-neutral-600 leading-relaxed">{f.body}</p>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Text Section - No Tickets (dark, large headline) */}
+{contentType === 'textSection' && isNoTickets && (
+  <section class="w-full py-24 md:py-32 px-6 md:px-12 bg-black text-white">
+    <div class="max-w-4xl mx-auto">
+      {f.heading && (
+        <h2 class="text-4xl md:text-6xl font-semibold tracking-tighter leading-tight mb-8 text-white">
+          {f.heading.split('. ').map((line: string, i: number, arr: string[]) => (
+            i < arr.length - 1 ? <>{line}.<br/></> : <>{line}</>
+          ))}
+        </h2>
+      )}
+      {f.body && (
+        <p class="text-xl md:text-2xl text-neutral-400 font-body font-light leading-relaxed max-w-2xl">
+          {f.body}
+        </p>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Two Column Section - The Résumé (dark bg) */}
+{contentType === 'twoColumnSection' && isResume && (
+  <section class="w-full py-24 md:py-32 px-6 md:px-12 bg-black text-white border-t border-neutral-900">
+    <div class="max-w-7xl mx-auto">
+      <div class="max-w-3xl mb-12">
+        <p class="text-sm font-medium uppercase tracking-wide text-neutral-400 mb-4">The Résumé You Don't Need to Read</p>
+        {f.heading && (
+          <h2 class="text-4xl md:text-6xl font-semibold mb-8 tracking-tighter leading-tight text-white">{f.heading}</h2>
+        )}
+      </div>
+
+      {/* Logo Carousel */}
+      {f.logos && f.logos.length > 0 && (
+        <div class="logo-carousel-wrap mb-12 -mx-6 md:-mx-12 overflow-hidden">
+          <div class="logo-carousel-track flex items-center gap-16 py-6">
+            {f.logos.map((logo: any) => (
+              <img
+                src={logo.fields?.file?.url?.startsWith('//') ? 'https:' + logo.fields.file.url : logo.fields?.file?.url}
+                alt={logo.fields?.title || 'Logo'}
+                class="h-8 md:h-8 max-w-[120px] md:max-w-[140px] w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 shrink-0 logo-white"
+              />
+            ))}
+            {/* Duplicate for seamless loop */}
+            {f.logos.map((logo: any) => (
+              <img
+                src={logo.fields?.file?.url?.startsWith('//') ? 'https:' + logo.fields.file.url : logo.fields?.file?.url}
+                alt={logo.fields?.title || 'Logo'}
+                class="h-8 md:h-8 max-w-[120px] md:max-w-[140px] w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 shrink-0 logo-white"
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {f.subheading && (
+        <p class="text-xl md:text-2xl text-neutral-400 font-body font-light leading-relaxed max-w-3xl mb-16">{f.subheading}</p>
+      )}
+
+      <div class="grid md:grid-cols-2 gap-12 md:gap-12 border-t border-neutral-800 pt-16">
+        {/* Left Column */}
+        <div>
+          {f.leftTitle && (
+            <h3 class="text-2xl font-bold mb-8 text-white tracking-tight">{f.leftTitle}</h3>
+          )}
+          {f.leftItems && Array.isArray(f.leftItems) && (
+            <ul class="space-y-4 font-body text-lg text-neutral-300">
+              {f.leftItems.map((item: string) => (
+                <li class="flex items-start gap-3">
+                  <iconify-icon icon="solar:check-circle-linear" width="24" class="text-neutral-500 shrink-0 mt-0.5"></iconify-icon>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Right Column */}
+        <div>
+          {f.rightTitle && (
+            <h3 class="text-2xl font-bold mb-8 text-white tracking-tight">{f.rightTitle}</h3>
+          )}
+          {f.rightItems && Array.isArray(f.rightItems) && (
+            <ul class="space-y-4 font-body text-lg text-neutral-300">
+              {f.rightItems.map((item: string, i: number) => {
+                const isLastItem = i === f.rightItems.length - 1;
+                return (
+                  <li class="flex items-start gap-3">
+                    <iconify-icon icon="solar:check-circle-linear" width="24" class:list={[isLastItem ? 'text-white' : 'text-neutral-500', 'shrink-0 mt-0.5']}></iconify-icon>
+                    <span class:list={[isLastItem ? 'text-white font-medium' : '']}>{item}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+{/* Two Column Section - Who This Is For (dark bg) */}
+{contentType === 'twoColumnSection' && isWhoThisIsFor && (
+  <section class="w-full py-24 md:py-32 px-6 md:px-12 bg-black text-white border-t border-neutral-900">
+    <div class="max-w-7xl mx-auto">
+      {f.heading && (
+        <h2 class="text-3xl md:text-4xl font-semibold mb-20 tracking-tight text-white text-center md:text-left">{f.heading}</h2>
+      )}
+
+      <div class="grid md:grid-cols-2 gap-12 md:gap-24 relative">
+        <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-neutral-800 -translate-x-1/2"></div>
+
+        {/* Left Column - For You If */}
+        <div>
+          {f.leftTitle && (
+            <div class="flex items-center gap-3 mb-8">
+              <div class="p-2 bg-white rounded-lg text-black">
+                <iconify-icon icon="solar:check-read-linear" width="24"></iconify-icon>
+              </div>
+              <h3 class="text-2xl font-bold tracking-tight text-white">{f.leftTitle}</h3>
+            </div>
+          )}
+          {f.leftItems && Array.isArray(f.leftItems) && (
+            <ul class="space-y-6 font-body text-lg text-neutral-300">
+              {f.leftItems.map((item: string) => (
+                <li class="flex items-start gap-4">
+                  <span class="block mt-2 w-1.5 h-1.5 bg-white rounded-full flex-shrink-0"></span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Right Column - Not For You If */}
+        <div>
+          {f.rightTitle && (
+            <div class="flex items-center gap-3 mb-8">
+              <div class="p-2 bg-neutral-900 rounded-lg text-neutral-500 border border-neutral-800">
+                <iconify-icon icon="solar:close-circle-linear" width="24"></iconify-icon>
+              </div>
+              <h3 class="text-2xl font-bold tracking-tight text-neutral-500">{f.rightTitle}</h3>
+            </div>
+          )}
+          {f.rightItems && Array.isArray(f.rightItems) && (
+            <ul class="space-y-6 font-body text-lg text-neutral-500">
+              {f.rightItems.map((item: string) => (
+                <li class="flex items-start gap-4">
+                  <span class="block mt-2 w-1.5 h-1.5 bg-neutral-800 rounded-full flex-shrink-0"></span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+{/* Two Column Section - Default */}
+{contentType === 'twoColumnSection' && !isResume && !isWhoThisIsFor && (
+  <section class="w-full py-24 md:py-32 px-6 md:px-12 bg-white border-t border-neutral-100">
+    <div class="max-w-5xl mx-auto">
+      {f.heading && (
+        <h2 class="text-3xl md:text-4xl font-semibold text-black mb-16 tracking-tight text-center md:text-left">{f.heading}</h2>
+      )}
+      <div class="grid md:grid-cols-2 gap-12 md:gap-24 relative">
+        <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-neutral-200 -translate-x-1/2"></div>
+        
+        {/* Left Column: I Own */}
+        <div class="flex flex-col gap-8">
+          {f.leftTitle && (
+            <div class="flex items-center gap-3 mb-2">
+              <div class="p-2 bg-black rounded-lg">
+                <iconify-icon icon="solar:user-check-rounded-linear" width="24" class="text-white block"></iconify-icon>
+              </div>
+              <h3 class="text-2xl font-bold tracking-tight">{f.leftTitle}</h3>
+            </div>
+          )}
+          {f.leftItems && Array.isArray(f.leftItems) && (
+            <ul class="space-y-6">
+              {f.leftItems.map((item: string) => (
+                <li class="flex items-start gap-4">
+                  <iconify-icon icon="solar:check-circle-linear" class="text-black mt-1 shrink-0" width="20"></iconify-icon>
+                  <span class="text-lg font-body text-neutral-800 font-medium">{item}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        
+        {/* Right Column: You Own */}
+        <div class="flex flex-col gap-8">
+          {f.rightTitle && (
+            <div class="flex items-center gap-3 mb-2">
+              <div class="p-2 bg-white border border-neutral-200 rounded-lg">
+                <iconify-icon icon="solar:user-circle-linear" width="24" class="text-black block"></iconify-icon>
+              </div>
+              <h3 class="text-2xl font-bold tracking-tight text-neutral-500">{f.rightTitle}</h3>
+            </div>
+          )}
+          {f.rightItems && Array.isArray(f.rightItems) && (
+            <ul class="space-y-6">
+              {f.rightItems.map((item: string, i: number) => {
+                const isLastItem = i === f.rightItems.length - 1;
+                return isLastItem ? (
+                  <li class="flex items-start gap-4">
+                    <iconify-icon icon="solar:star-circle-linear" class="text-black mt-1 shrink-0" width="20"></iconify-icon>
+                    <span class="text-lg font-body text-black font-semibold">{item}</span>
+                  </li>
+                ) : (
+                  <li class="flex items-start gap-4 opacity-60">
+                    <iconify-icon icon="solar:check-circle-linear" class="text-neutral-400 mt-1 shrink-0" width="20"></iconify-icon>
+                    <span class="text-lg font-body text-neutral-600">{item}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+{/* Text Section - Default */}
+{contentType === 'textSection' && !isLimitedCapacity && !isAboutSection && !isDisqualification && !isNoTickets && !isRealityLiving && !isAfterYouBook && (
+  <section class:list={[
+    'w-full py-24 px-6 md:px-12 border-t border-neutral-100',
+    f.variant === 'dark' ? 'bg-black text-white' : 'bg-white text-black'
+  ]}>
+    <div class="max-w-4xl mx-auto">
+      {f.label && (
+        <span class:list={[
+          'text-xs font-semibold uppercase tracking-widest mb-3 block',
+          f.variant === 'dark' ? 'text-neutral-400' : 'text-neutral-500'
+        ]}>
+          {f.label}
+        </span>
+      )}
+      {f.heading && (
+        <h2 class:list={[
+          'text-3xl md:text-4xl font-medium mb-8 tracking-tight whitespace-pre-line',
+          f.variant === 'dark' ? 'text-white' : 'text-black'
+        ]}>
+          {f.heading}
+        </h2>
+      )}
+      {f.subheading && (
+        <p class:list={[
+          'text-xl mb-6',
+          f.variant === 'dark' ? 'text-neutral-400' : 'text-neutral-500'
+        ]}>
+          {f.subheading}
+        </p>
+      )}
+      {f.body && (
+        <p class:list={[
+          'text-lg font-body leading-relaxed whitespace-pre-line',
+          f.variant === 'dark' ? 'text-neutral-300' : 'text-neutral-600'
+        ]}>
+          {f.body}
+        </p>
+      )}
+      {f.closingLine && (
+        <p class:list={[
+          'mt-8 font-medium',
+          f.variant === 'dark' ? 'text-white' : 'text-black'
+        ]}>
+          {f.closingLine}
+        </p>
+      )}
+    </div>
+  </section>
+)}
+
+{/* FAQ Section */}
+{contentType === 'faqSection' && (
+  <section class="w-full py-24 px-6 md:px-12 bg-white border-t border-neutral-100">
+    <div class="max-w-3xl mx-auto">
+      {f.heading && (
+        <h2 class="text-3xl font-medium text-black mb-12 tracking-tight">{f.heading}</h2>
+      )}
+      {f.faqs && f.faqs.length > 0 && (
+        <div class="space-y-2">
+          {f.faqs.map((faq: any) => (
+            <details class="group bg-white rounded-lg border border-neutral-200 overflow-hidden cursor-pointer transition-all hover:border-neutral-300">
+              <summary class="flex justify-between items-center p-6 font-medium text-lg text-black select-none">
+                <span>{faq.fields?.question}</span>
+                <span class="text-neutral-400 group-open:rotate-180 transition-transform duration-300 flex items-center">
+                  <iconify-icon icon="solar:alt-arrow-down-linear" width="20"></iconify-icon>
+                </span>
+              </summary>
+              <div class="px-6 pb-6 text-neutral-600 font-body leading-relaxed">
+                {faq.fields?.answer}
+              </div>
+            </details>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Testimonial Section */}
+{contentType === 'testimonialSection' && (
+  <section class="w-full py-20 px-6 md:px-12 bg-white border-b border-neutral-100">
+    <div class="max-w-6xl mx-auto">
+      {f.heading && (
+        <h2 class="text-3xl font-medium text-black mb-12 tracking-tight">{f.heading}</h2>
+      )}
+      {f.testimonials && f.testimonials.length > 0 && (
+        <div class="grid md:grid-cols-3 gap-8">
+          {f.testimonials.map((t: any) => (
+            <div class="flex flex-col gap-4 p-6 rounded-xl bg-neutral-50 border border-neutral-100">
+              <iconify-icon icon="solar:quote-up-square-linear" class="text-black/20" width="24"></iconify-icon>
+              <p class="text-lg text-neutral-800 font-medium font-body leading-relaxed">
+                "{t.fields?.quote}"
+              </p>
+              <div class="mt-auto pt-4 border-t border-neutral-200/50">
+                <p class="text-sm font-semibold text-black">{t.fields?.name || '[Name]'}</p>
+                <p class="text-sm text-neutral-500">{t.fields?.organization || '[Organization]'}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+{/* Social Proof Section */}
+{contentType === 'socialProofSection' && (
+  <section id="clients" class="w-full py-16 px-6 md:px-12 bg-black border-y border-neutral-800">
+    <div class="max-w-6xl mx-auto text-center">
+      {f.heading && (
+        <span class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-8 block">{f.heading}</span>
+      )}
+
+      {/* Logo images carousel (when logos are uploaded) */}
+      {f.logos && f.logos.length > 0 ? (
+        <div class="social-logo-wrap overflow-hidden -mx-6 md:-mx-12">
+          <div class="social-logo-track flex items-center gap-16 py-4">
+            {f.logos.map((logo: any, i: number) => (
+              <img
+                src={logo.fields?.file?.url?.startsWith('//') ? 'https:' + logo.fields.file.url : logo.fields?.file?.url}
+                alt={logo.fields?.title || (f.clients && f.clients[i]) || 'Client logo'}
+                class="h-8 md:h-8 max-w-[120px] md:max-w-[140px] w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 shrink-0 logo-white"
+              />
+            ))}
+            {/* Duplicate for seamless loop */}
+            {f.logos.map((logo: any, i: number) => (
+              <img
+                src={logo.fields?.file?.url?.startsWith('//') ? 'https:' + logo.fields.file.url : logo.fields?.file?.url}
+                alt={logo.fields?.title || (f.clients && f.clients[i]) || 'Client logo'}
+                class="h-8 md:h-8 max-w-[120px] md:max-w-[140px] w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 shrink-0 logo-white"
+              />
+            ))}
+          </div>
+        </div>
+      ) : (
+        /* Fallback to text names */
+        f.clients && Array.isArray(f.clients) && (
+          <div class="flex flex-wrap justify-center items-center gap-x-12 gap-y-8">
+            {f.clients.map((client: string) => (
+              <span class="text-xl md:text-2xl font-medium text-neutral-500 hover:text-white transition-all">
+                {client}
+              </span>
+            ))}
+          </div>
+        )
+      )}
+    </div>
+  </section>
+)}
+
+{/* CTA Section */}
+{contentType === 'ctaSection' && (
+  <section class="w-full py-24 px-6 md:px-12 bg-neutral-50 border-t border-neutral-900">
+    <div class="max-w-4xl mx-auto text-center flex flex-col items-center">
+      {f.heading && (
+        <h2 class="text-4xl md:text-5xl font-semibold tracking-tight mb-10 text-black">{f.heading}</h2>
+      )}
+      {f.body && (
+        <p class="text-lg text-neutral-600 mb-10 font-body font-light">{f.body}</p>
+      )}
+      {f.ctaLabel && (
+        <a
+          href={f.ctaUrl?.startsWith('http') ? f.ctaUrl : 'https://calendly.com/onlinenexusmarketing/strategy-meeting'}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center px-10 py-5 bg-black text-white text-lg font-medium rounded-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+        >
+          {f.ctaLabel} <span class="ml-2">→</span>
+        </a>
+      )}
+      {f.tagline && (
+        <p class="mt-12 text-lg text-neutral-400 font-body font-medium tracking-wide uppercase">{f.tagline}</p>
+      )}
+    </div>
+  </section>
+)}
+
+<style>
+  /* Logo carousel infinite scroll */
+  .logo-carousel-wrap {
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+  .logo-carousel-track {
+    animation: logo-scroll 25s linear infinite;
+    width: max-content;
+  }
+  .logo-carousel-track:hover {
+    animation-play-state: paused;
+  }
+  @keyframes logo-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* Social proof logo carousel */
+  .social-logo-wrap {
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  }
+  .social-logo-track {
+    animation: logo-scroll 30s linear infinite;
+    width: max-content;
+  }
+  .social-logo-track:hover {
+    animation-play-state: paused;
+  }
+
+  /* Force logos to white */
+  .logo-white {
+    filter: brightness(0) invert(1);
+  }
+</style>

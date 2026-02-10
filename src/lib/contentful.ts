@@ -557,3 +557,173 @@ export async function getSiteNavigation(): Promise<SiteNavigation | null> {
     return null;
   }
 }
+
+// ============================================================================
+// MODULAR PAGE BUILDER TYPES
+// ============================================================================
+
+export interface HeroSectionContent {
+  contentType: 'heroSection';
+  internalName?: string;
+  headline: string;
+  subheadline?: string;
+  ctaText?: string;
+  ctaUrl?: string;
+  backgroundImage?: Asset;
+}
+
+export interface CardItem {
+  icon?: string;
+  title: string;
+  description?: string;
+}
+
+export interface CardGridContent {
+  contentType: 'cardGrid' | 'cardGrid2' | 'cardGrid3';
+  internalName?: string;
+  title?: string;
+  description?: string;
+  cards?: any[];
+}
+
+export interface FAQSectionContent {
+  contentType: 'faqSection';
+  internalName?: string;
+  question: string;
+  answer: any; // RichText
+}
+
+export interface CallToActionContent {
+  contentType: 'callToAction';
+  internalName?: string;
+  headline: string;
+  bodyText?: string;
+  buttonText?: string;
+  buttonUrl?: string;
+}
+
+export interface ContentSectionContent {
+  contentType: 'contentSection' | 'contentSection2' | 'contentSection3' | 'contentSection4' | 'contentSection5' | 'contentSection6' | 'contentSection7';
+  internalName?: string;
+  heading?: string;
+  subheading?: string;
+  bodyText?: string;
+  image?: Asset;
+  ctaText?: string;
+  ctaUrl?: string;
+}
+
+export type PageSection = 
+  | HeroSectionContent 
+  | CardGridContent 
+  | FAQSectionContent 
+  | CallToActionContent 
+  | ContentSectionContent;
+
+export interface ModularPage {
+  internalName?: string;
+  name?: string;
+  title?: string;
+  slug: string;
+  description?: string;
+  heroSection?: PageSection;
+  sections: PageSection[];
+  navigation?: any;
+  footer?: any;
+}
+
+/**
+ * Get Page by slug with all sections resolved
+ */
+export async function getPageBySlug(slug: string): Promise<ModularPage | null> {
+  if (!client) return null;
+  try {
+    // Normalize slug - handle both with and without leading slash
+    const normalizedSlug = slug.startsWith('/') ? slug : '/' + slug;
+    
+    const entries = await client.getEntries({
+      content_type: 'page',
+      'fields.slug': normalizedSlug,
+      include: 3,
+      limit: 1,
+    });
+
+    if (entries.items.length === 0) {
+      // Try without leading slash
+      const altEntries = await client.getEntries({
+        content_type: 'page',
+        'fields.slug': slug.replace(/^\//, ''),
+        include: 3,
+        limit: 1,
+      });
+      
+      if (altEntries.items.length === 0) {
+        console.error('❌ No page found for slug:', slug);
+        return null;
+      }
+      
+      return transformPageEntry(altEntries.items[0]);
+    }
+
+    return transformPageEntry(entries.items[0]);
+  } catch (error: any) {
+    console.error('❌ Error fetching page:', error.message);
+    return null;
+  }
+}
+
+/**
+ * Get all pages (for generating routes)
+ */
+export async function getAllPages(): Promise<ModularPage[]> {
+  if (!client) return [];
+  try {
+    const entries = await client.getEntries({
+      content_type: 'page',
+      include: 3,
+    });
+
+    return entries.items.map(transformPageEntry);
+  } catch (error: any) {
+    console.error('❌ Error fetching all pages:', error.message);
+    return [];
+  }
+}
+
+/**
+ * Transform Contentful entry to ModularPage
+ */
+function transformPageEntry(entry: any): ModularPage {
+  const fields = entry.fields;
+  
+  // Transform heroSection if present
+  let heroSection: PageSection | undefined;
+  if (fields.heroSection) {
+    const heroContentType = fields.heroSection.sys?.contentType?.sys?.id || 'heroSection';
+    heroSection = {
+      contentType: heroContentType,
+      ...fields.heroSection.fields,
+    };
+  }
+
+  // Transform sections array
+  const sections: PageSection[] = (fields.sections || []).map((section: any) => {
+    const contentType = section.sys?.contentType?.sys?.id || 'unknown';
+    return {
+      contentType,
+      ...section.fields,
+    };
+  });
+
+  return {
+    internalName: fields.internalName,
+    name: fields.name,
+    title: fields.title,
+    slug: fields.slug,
+    description: fields.description,
+    heroSection,
+    sections,
+    navigation: fields.navigation,
+    footer: fields.footer,
+  };
+}
