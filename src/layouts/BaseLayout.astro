@@ -101,6 +101,110 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
     
     <!-- Scripts -->
     <slot name="scripts" />
+
+    <!-- Scroll Reveal & Animation Script -->
+    <script>
+      // Intersection Observer for scroll reveal
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      // Stagger observer for card groups
+      const staggerObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const children = entry.target.querySelectorAll('.stagger-item');
+            children.forEach((child, i) => {
+              (child as HTMLElement).style.transitionDelay = `${i * 100}ms`;
+              child.classList.add('revealed');
+            });
+            staggerObserver.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      // Initialize on DOM ready
+      function initAnimations() {
+        // Reveal sections
+        document.querySelectorAll('section').forEach((el) => {
+          el.classList.add('reveal');
+          revealObserver.observe(el);
+        });
+
+        // Stagger card grids
+        document.querySelectorAll('.grid').forEach((grid) => {
+          const children = grid.children;
+          if (children.length > 1) {
+            grid.classList.add('stagger-group');
+            Array.from(children).forEach((child) => {
+              child.classList.add('stagger-item', 'reveal');
+            });
+            staggerObserver.observe(grid);
+          }
+        });
+
+        // Stagger list items
+        document.querySelectorAll('ul.space-y-4, ul.space-y-6').forEach((list) => {
+          list.classList.add('stagger-group');
+          Array.from(list.children).forEach((child) => {
+            child.classList.add('stagger-item', 'reveal');
+          });
+          staggerObserver.observe(list);
+        });
+
+        // Hero animation - immediate reveal with stagger
+        const heroSection = document.querySelector('section:first-of-type');
+        if (heroSection) {
+          heroSection.classList.add('revealed');
+          const heroH1 = heroSection.querySelector('h1');
+          const heroP = heroSection.querySelector('p');
+          const heroA = heroSection.querySelector('a');
+          const heroImg = heroSection.querySelector('.md\\:col-span-5, .md\\:col-span-4');
+
+          [heroH1, heroP, heroA].forEach((el, i) => {
+            if (el) {
+              el.classList.add('hero-reveal');
+              (el as HTMLElement).style.animationDelay = `${200 + i * 150}ms`;
+            }
+          });
+          if (heroImg) {
+            heroImg.classList.add('hero-reveal-img');
+          }
+        }
+
+        // Flow diagram animation
+        const flowBoxes = document.querySelectorAll('.flex.flex-col.items-center.justify-center > div');
+        flowBoxes.forEach((box, i) => {
+          (box as HTMLElement).classList.add('flow-item');
+          (box as HTMLElement).style.animationDelay = `${i * 300}ms`;
+        });
+
+        // Processing dots animation
+        document.querySelectorAll('.flex.justify-center.gap-1\\.5').forEach((dots) => {
+          dots.classList.add('processing-dots');
+        });
+      }
+
+      // Run on page load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAnimations);
+      } else {
+        initAnimations();
+      }
+
+      // Re-run on Astro page transitions
+      document.addEventListener('astro:page-load', initAnimations);
+    </script>
     
     <!-- Analytics (if configured) -->
     {import.meta.env.GA_MEASUREMENT_ID && (
@@ -123,11 +227,179 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
   html {
     scroll-behavior: smooth;
   }
+
+  /* ============================================
+     SCROLL REVEAL ANIMATIONS
+     ============================================ */
   
-  /* Reduced motion for accessibility */
+  /* Base reveal state - hidden */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  /* Revealed state */
+  .reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger items */
+  .stagger-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .stagger-item.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ============================================
+     HERO ANIMATIONS
+     ============================================ */
+  
+  .hero-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: heroFadeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  @keyframes heroFadeIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero-reveal-img {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+    animation: heroImgIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+  }
+  
+  @keyframes heroImgIn {
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* ============================================
+     FLOW DIAGRAM ANIMATION
+     ============================================ */
+  
+  .flow-item {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: flowIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  @keyframes flowIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Processing dots pulse */
+  .processing-dots > div {
+    animation: dotPulse 1.5s ease-in-out infinite;
+  }
+  .processing-dots > div:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .processing-dots > div:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+  
+  @keyframes dotPulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* ============================================
+     ENHANCED CARD HOVER STATES
+     ============================================ */
+  
+  /* Light cards */
+  .grid > div[class*="border-neutral"] {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.3s ease;
+  }
+  
+  .grid > div[class*="border-neutral"]:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Dark cards */
+  .grid > div[class*="bg-black"] {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .grid > div[class*="bg-black"]:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  /* FAQ details hover */
+  details {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  details:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  }
+  details[open] {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Testimonial cards */
+  .grid > div[class*="bg-neutral-50"] {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.4s ease;
+  }
+  .grid > div[class*="bg-neutral-50"]:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  }
+
+  /* CTA button pulse */
+  a[class*="bg-black"][class*="rounded-lg"][class*="shadow-xl"] {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.3s ease,
+                background-color 0.2s ease;
+  }
+
+  /* ============================================
+     ACCESSIBILITY - REDUCED MOTION
+     ============================================ */
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
+    }
+    
+    .reveal, .stagger-item {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+    
+    .hero-reveal, .hero-reveal-img, .flow-item {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+    }
+
+    .processing-dots > div {
+      animation: none !important;
+      opacity: 0.8 !important;
     }
     
     *,
