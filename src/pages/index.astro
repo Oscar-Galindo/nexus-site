@@ -21,9 +21,10 @@ const footerContent = {
 };
 
 const title = page?.title || defaultTitle;
+const description = page?.description || 'Full ownership of your digital operations. Website, content, CRM, and more — handled by one person who owns it all.';
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={title} description={description}>
   
   <Navigation currentPath="/" />
 

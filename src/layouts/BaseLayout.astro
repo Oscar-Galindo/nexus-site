@@ -57,8 +57,11 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
     <meta property="twitter:image" content={ogImage} />
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#000000" />
     
     <!-- Fonts - Plus Jakarta Sans + Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -70,6 +73,23 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
     
     <!-- Iconify for Solar icons -->
     <script src="https://code.iconify.design/iconify-icon/2.0.0/iconify-icon.min.js"></script>
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "Online Nexus Marketing",
+      "description": description,
+      "url": "https://www.onlinenexusmarketing.com",
+      "logo": "https://www.onlinenexusmarketing.com/logo.png",
+      "founder": {
+        "@type": "Person",
+        "name": "Oscar Galindo"
+      },
+      "serviceType": "Digital Operations Management",
+      "areaServed": "US",
+      "priceRange": "$$"
+    })} />
     
     <!-- Preload critical assets -->
     <slot name="preload" />
