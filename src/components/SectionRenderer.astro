@@ -958,8 +958,8 @@ const isAfterYouBook = internalName.includes('After You Book');
     animation-play-state: paused;
   }
 
-  /* Force logos to white */
+  /* Force all logos to white regardless of original color */
   .logo-white {
-    filter: brightness(0) invert(1);
+    filter: brightness(0) invert(1) !important;
   }
 </style>
