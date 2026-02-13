@@ -13,7 +13,15 @@ export default defineConfig({
     UnoCSS({
       injectReset: true,
     }),
-    sitemap(),
+    sitemap({
+      filter: (page) => !page.includes('forms-demo') && !page.includes('i18n-demo'),
+      customPages: [
+        'https://www.onlinenexusmarketing.com/',
+        'https://www.onlinenexusmarketing.com/who-am-i',
+        'https://www.onlinenexusmarketing.com/what-gets-handled',
+        'https://www.onlinenexusmarketing.com/faq',
+      ],
+    }),
   ],
   vite: {
     resolve: {
