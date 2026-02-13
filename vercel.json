@@ -1,0 +1,12 @@
+{
+  "redirects": [
+    { "source": "/about-us", "destination": "/who-am-i", "permanent": true },
+    { "source": "/how-it-works", "destination": "/what-gets-handled", "permanent": true },
+    { "source": "/expert-level-social-media-google-advertising-team", "destination": "/what-gets-handled", "permanent": true },
+    { "source": "/expert-level-social-media-google-advertising-team/", "destination": "/what-gets-handled", "permanent": true },
+    { "source": "/businesses-without-websites-miss-out", "destination": "/", "permanent": true },
+    { "source": "/businesses-without-websites-miss-out/", "destination": "/", "permanent": true },
+    { "source": "/contact", "destination": "/", "permanent": true },
+    { "source": "/services", "destination": "/what-gets-handled", "permanent": true }
+  ]
+}

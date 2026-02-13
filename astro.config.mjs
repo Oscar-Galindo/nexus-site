@@ -23,14 +23,6 @@ export default defineConfig({
       ],
     }),
   ],
-  redirects: {
-    '/about-us': '/who-am-i',
-    '/how-it-works': '/what-gets-handled',
-    '/expert-level-social-media-google-advertising-team': '/what-gets-handled',
-    '/businesses-without-websites-miss-out': '/',
-    '/contact': '/',
-    '/services': '/what-gets-handled',
-  },
   vite: {
     resolve: {
       alias: {
