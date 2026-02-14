@@ -94,6 +94,10 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
     <!-- Preload critical assets -->
     <slot name="preload" />
 
+    <!-- Calendly Widget -->
+    <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet" />
+    <script is:inline src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+
     <!-- Google Tag Manager -->
     <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -112,6 +116,21 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
     
     <!-- Scripts -->
     <slot name="scripts" />
+
+    <!-- Calendly Badge Widget -->
+    <script is:inline>
+      window.addEventListener('load', function() {
+        if (typeof Calendly !== 'undefined') {
+          Calendly.initBadgeWidget({
+            url: 'https://calendly.com/onlinenexusmarketing/strategy-meeting?text_color=ffffff',
+            text: 'Book a Call',
+            color: '#0069ff',
+            textColor: '#ffffff',
+            branding: false
+          });
+        }
+      });
+    </script>
 
     <!-- Scroll Reveal & Animation Script -->
     <script>
