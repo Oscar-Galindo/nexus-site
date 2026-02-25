@@ -762,42 +762,37 @@ function transformArticleCategory(entry: any): ArticleCategory {
   };
 }
 
-function transformArticle(entry: any, includes?: any): Article {
-  const fields = entry.fields;
+function resolveImage(ref: any): { url: string; alt: string } | undefined {
+  try {
+    if (!ref?.fields?.file?.url) return undefined;
+    const url = ref.fields.file.url;
+    return {
+      url: typeof url === 'string' ? (url.startsWith('//') ? `https:${url}` : url) : '',
+      alt: String(ref.fields.title || ref.fields.description || ''),
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+function transformArticle(entry: any, depth = 0): Article {
+  const fields = entry.fields || {};
 
   let category: ArticleCategory = { id: '', name: '', slug: '' };
-  const catRef = fields.category;
-  if (catRef?.fields) {
-    category = transformArticleCategory(catRef);
-  } else if (catRef?.sys?.id && includes?.Entry) {
-    const catEntry = includes.Entry.find((e: any) => e.sys.id === catRef.sys.id);
-    if (catEntry) category = transformArticleCategory(catEntry);
-  }
-
-  let featuredImage: { url: string; alt: string } | undefined;
-  const imgRef = fields.featuredImage;
-  if (imgRef?.fields) {
-    const url = imgRef.fields.file?.url;
-    featuredImage = {
-      url: typeof url === 'string' ? (url.startsWith('//') ? `https:${url}` : url) : '',
-      alt: String(imgRef.fields.title || imgRef.fields.description || fields.title || ''),
-    };
-  } else if (imgRef?.sys?.id && includes?.Asset) {
-    const asset = includes.Asset.find((a: any) => a.sys.id === imgRef.sys.id);
-    if (asset?.fields?.file?.url) {
-      const url = asset.fields.file.url;
-      featuredImage = {
-        url: typeof url === 'string' ? (url.startsWith('//') ? `https:${url}` : url) : '',
-        alt: String(asset.fields.title || asset.fields.description || fields.title || ''),
-      };
+  try {
+    const catRef = fields.category;
+    if (catRef?.sys?.id && catRef?.fields) {
+      category = transformArticleCategory(catRef);
     }
-  }
+  } catch { /* use default */ }
 
   let relatedArticles: Article[] | undefined;
-  if (Array.isArray(fields.relatedArticles) && fields.relatedArticles.length > 0) {
-    relatedArticles = fields.relatedArticles
-      .filter((r: any) => r?.fields)
-      .map((r: any) => transformArticle(r, includes));
+  if (depth < 1 && Array.isArray(fields.relatedArticles)) {
+    try {
+      relatedArticles = fields.relatedArticles
+        .filter((r: any) => r?.fields?.slug)
+        .map((r: any) => transformArticle(r, depth + 1));
+    } catch { relatedArticles = undefined; }
   }
 
   return {
@@ -807,8 +802,8 @@ function transformArticle(entry: any, includes?: any): Article {
     publishDate: String(fields.publishDate || ''),
     readingTime: typeof fields.readingTime === 'number' ? fields.readingTime : 5,
     excerpt: String(fields.excerpt || ''),
-    featuredImage,
-    body: fields.body,
+    featuredImage: resolveImage(fields.featuredImage),
+    body: fields.body || null,
     author: String(fields.author || ''),
     relatedArticles,
     tags: Array.isArray(fields.tags) ? fields.tags.map(String) : [],
@@ -844,27 +839,42 @@ export async function getArticles(options?: {
   try {
     const query: any = {
       content_type: 'article',
-      include: 2,
+      include: 1,
       order: ['-fields.publishDate'] as any,
       limit: options?.limit || 100,
       skip: options?.skip || 0,
     };
 
     if (options?.categorySlug) {
-      const categories = await client.getEntries({
-        content_type: 'articleCategory',
-        'fields.slug': options.categorySlug,
-        limit: 1,
-      });
-      if (categories.items.length > 0) {
-        query['fields.category.sys.id'] = categories.items[0].sys.id;
+      try {
+        const categories = await client.getEntries({
+          content_type: 'articleCategory',
+          'fields.slug': options.categorySlug,
+          limit: 1,
+        });
+        if (categories.items.length > 0) {
+          query['fields.category.sys.id'] = categories.items[0].sys.id;
+        }
+      } catch (catError: any) {
+        console.error('Error filtering by category:', catError.message);
       }
     }
 
     const response = await client.getEntries(query);
-    const articles = response.items.map((item: any) =>
-      transformArticle(item, response.includes)
+
+    const articles: Article[] = [];
+    for (const item of response.items) {
+      try {
+        articles.push(transformArticle(item));
+      } catch (itemError: any) {
+        console.error(`Skipping article "${(item as any).fields?.title}":`, itemError.message);
+      }
+    }
+
+    articles.sort((a, b) =>
+      new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
     );
+
     return { articles, total: response.total };
   } catch (error: any) {
     console.error('Error fetching articles:', error.message);
@@ -881,12 +891,12 @@ export async function getArticle(slug: string): Promise<Article | null> {
     const entries = await client.getEntries({
       content_type: 'article',
       'fields.slug': slug,
-      include: 3,
+      include: 2,
       limit: 1,
     });
 
     if (entries.items.length === 0) return null;
-    return transformArticle(entries.items[0], entries.includes);
+    return transformArticle(entries.items[0]);
   } catch (error: any) {
     console.error(`Error fetching article ${slug}:`, error.message);
     return null;
