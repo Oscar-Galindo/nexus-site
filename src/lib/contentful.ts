@@ -727,3 +727,168 @@ function transformPageEntry(entry: any): ModularPage {
     footer: fields.footer,
   };
 }
+
+// ============================================================================
+// ARTICLES / BLOG
+// ============================================================================
+
+export interface ArticleCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export interface Article {
+  slug: string;
+  title: string;
+  category: ArticleCategory;
+  publishDate: string;
+  readingTime: number;
+  excerpt: string;
+  featuredImage?: { url: string; alt: string };
+  body: any;
+  author: string;
+  relatedArticles?: Article[];
+  tags?: string[];
+}
+
+function transformArticleCategory(entry: any): ArticleCategory {
+  return {
+    id: entry.sys.id,
+    name: String(entry.fields?.name || ''),
+    slug: String(entry.fields?.slug || ''),
+    description: entry.fields?.description ? String(entry.fields.description) : undefined,
+  };
+}
+
+function transformArticle(entry: any, includes?: any): Article {
+  const fields = entry.fields;
+
+  let category: ArticleCategory = { id: '', name: '', slug: '' };
+  const catRef = fields.category;
+  if (catRef?.fields) {
+    category = transformArticleCategory(catRef);
+  } else if (catRef?.sys?.id && includes?.Entry) {
+    const catEntry = includes.Entry.find((e: any) => e.sys.id === catRef.sys.id);
+    if (catEntry) category = transformArticleCategory(catEntry);
+  }
+
+  let featuredImage: { url: string; alt: string } | undefined;
+  const imgRef = fields.featuredImage;
+  if (imgRef?.fields) {
+    const url = imgRef.fields.file?.url;
+    featuredImage = {
+      url: typeof url === 'string' ? (url.startsWith('//') ? `https:${url}` : url) : '',
+      alt: String(imgRef.fields.title || imgRef.fields.description || fields.title || ''),
+    };
+  } else if (imgRef?.sys?.id && includes?.Asset) {
+    const asset = includes.Asset.find((a: any) => a.sys.id === imgRef.sys.id);
+    if (asset?.fields?.file?.url) {
+      const url = asset.fields.file.url;
+      featuredImage = {
+        url: typeof url === 'string' ? (url.startsWith('//') ? `https:${url}` : url) : '',
+        alt: String(asset.fields.title || asset.fields.description || fields.title || ''),
+      };
+    }
+  }
+
+  let relatedArticles: Article[] | undefined;
+  if (Array.isArray(fields.relatedArticles) && fields.relatedArticles.length > 0) {
+    relatedArticles = fields.relatedArticles
+      .filter((r: any) => r?.fields)
+      .map((r: any) => transformArticle(r, includes));
+  }
+
+  return {
+    slug: String(fields.slug || ''),
+    title: String(fields.title || ''),
+    category,
+    publishDate: String(fields.publishDate || ''),
+    readingTime: typeof fields.readingTime === 'number' ? fields.readingTime : 5,
+    excerpt: String(fields.excerpt || ''),
+    featuredImage,
+    body: fields.body,
+    author: String(fields.author || ''),
+    relatedArticles,
+    tags: Array.isArray(fields.tags) ? fields.tags.map(String) : [],
+  };
+}
+
+/**
+ * Get all article categories
+ */
+export async function getArticleCategories(): Promise<ArticleCategory[]> {
+  if (!client) return [];
+  try {
+    const entries = await client.getEntries({
+      content_type: 'articleCategory',
+      limit: 50,
+    });
+    return entries.items.map(transformArticleCategory);
+  } catch (error: any) {
+    console.error('Error fetching article categories:', error.message);
+    return [];
+  }
+}
+
+/**
+ * Get articles with optional filtering
+ */
+export async function getArticles(options?: {
+  categorySlug?: string;
+  limit?: number;
+  skip?: number;
+}): Promise<{ articles: Article[]; total: number }> {
+  if (!client) return { articles: [], total: 0 };
+  try {
+    const query: any = {
+      content_type: 'article',
+      include: 2,
+      order: ['-fields.publishDate'] as any,
+      limit: options?.limit || 100,
+      skip: options?.skip || 0,
+    };
+
+    if (options?.categorySlug) {
+      const categories = await client.getEntries({
+        content_type: 'articleCategory',
+        'fields.slug': options.categorySlug,
+        limit: 1,
+      });
+      if (categories.items.length > 0) {
+        query['fields.category.sys.id'] = categories.items[0].sys.id;
+      }
+    }
+
+    const response = await client.getEntries(query);
+    const articles = response.items.map((item: any) =>
+      transformArticle(item, response.includes)
+    );
+    return { articles, total: response.total };
+  } catch (error: any) {
+    console.error('Error fetching articles:', error.message);
+    return { articles: [], total: 0 };
+  }
+}
+
+/**
+ * Get a single article by slug
+ */
+export async function getArticle(slug: string): Promise<Article | null> {
+  if (!client) return null;
+  try {
+    const entries = await client.getEntries({
+      content_type: 'article',
+      'fields.slug': slug,
+      include: 3,
+      limit: 1,
+    });
+
+    if (entries.items.length === 0) return null;
+    return transformArticle(entries.items[0], entries.includes);
+  } catch (error: any) {
+    console.error(`Error fetching article ${slug}:`, error.message);
+    return null;
+  }
+}

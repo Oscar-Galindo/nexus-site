@@ -1,0 +1,167 @@
+---
+/**
+ * Articles Listing Page
+ * Blog index with category filtering, featured article, and grid layout
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Navigation from '@/components/global/Navigation.astro';
+import SiteFooter from '@/components/global/SiteFooter.astro';
+import FinalCTA from '@/components/sections/FinalCTA.astro';
+import ArticleCard from '@/components/cards/ArticleCard.astro';
+import { getArticles, getArticleCategories } from '@/lib/contentful';
+
+const categorySlug = Astro.url.searchParams.get('category') || '';
+
+const [{ articles, total }, categories] = await Promise.all([
+  getArticles({ categorySlug: categorySlug || undefined }),
+  getArticleCategories(),
+]);
+
+const featured = articles[0] || null;
+const gridArticles = articles.slice(1);
+
+const footerContent = {
+  logoUrl: 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1769829242/onmlogo_bhcbxa.png',
+  tagline: 'Hand it off. It\'s handled.',
+};
+---
+
+<BaseLayout
+  title="Thoughts on Operations | Online Nexus Marketing"
+  description="Mental models, system architecture, and perspectives on truly handing off your digital presence. No fluff, just mechanics."
+>
+  <Navigation currentPath="/articles" />
+
+  <!-- Hero -->
+  <section class="w-full pt-16 pb-12 px-6 md:px-12 bg-white">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-black mb-6">
+        Thoughts on Operations
+      </h1>
+      <p class="text-lg text-neutral-500 font-light max-w-2xl leading-relaxed">
+        Mental models, system architecture, and perspectives on truly handing off your digital presence. No fluff, just mechanics.
+      </p>
+    </div>
+  </section>
+
+  <!-- Category Filters -->
+  <section class="w-full px-6 md:px-12 pb-12 bg-white">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex flex-wrap gap-2">
+        <a
+          href="/articles"
+          class:list={[
+            'px-4 py-2 text-sm font-medium rounded-full border transition-colors',
+            !categorySlug
+              ? 'bg-black text-white border-black'
+              : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400'
+          ]}
+        >
+          All Articles
+        </a>
+        {categories.map((cat) => (
+          <a
+            href={`/articles?category=${cat.slug}`}
+            class:list={[
+              'px-4 py-2 text-sm font-medium rounded-full border transition-colors',
+              categorySlug === cat.slug
+                ? 'bg-black text-white border-black'
+                : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400'
+            ]}
+          >
+            {cat.name.charAt(0) + cat.name.slice(1).toLowerCase()}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Article -->
+  {featured && (
+    <section class="w-full px-6 md:px-12 pb-16 bg-white">
+      <div class="max-w-6xl mx-auto">
+        <ArticleCard
+          slug={featured.slug}
+          title={featured.title}
+          excerpt={featured.excerpt}
+          category={featured.category.name}
+          publishDate={featured.publishDate}
+          readingTime={featured.readingTime}
+          imageUrl={featured.featuredImage?.url}
+          imageAlt={featured.featuredImage?.alt}
+          featured={true}
+        />
+      </div>
+    </section>
+  )}
+
+  <!-- Article Grid -->
+  {gridArticles.length > 0 && (
+    <section class="w-full px-6 md:px-12 pb-16 bg-white">
+      <div class="max-w-6xl mx-auto">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+          {gridArticles.map((article) => (
+            <ArticleCard
+              slug={article.slug}
+              title={article.title}
+              excerpt={article.excerpt}
+              category={article.category.name}
+              publishDate={article.publishDate}
+              readingTime={article.readingTime}
+              imageUrl={article.featuredImage?.url}
+              imageAlt={article.featuredImage?.alt}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Load More (shown when there are more articles than displayed) -->
+  {total > articles.length && (
+    <section class="w-full px-6 md:px-12 pb-20 bg-white">
+      <div class="max-w-6xl mx-auto flex justify-center">
+        <button
+          id="load-more-btn"
+          class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-neutral-600 border border-neutral-200 rounded-full hover:border-neutral-400 transition-colors"
+          data-skip={articles.length}
+          data-category={categorySlug}
+          data-total={total}
+        >
+          <iconify-icon icon="solar:refresh-linear" width="16"></iconify-icon>
+          Load more articles
+        </button>
+      </div>
+    </section>
+  )}
+
+  <!-- Empty State -->
+  {articles.length === 0 && (
+    <section class="w-full px-6 md:px-12 py-24 bg-white">
+      <div class="max-w-6xl mx-auto text-center">
+        <p class="text-xl text-neutral-400">No articles found.</p>
+        {categorySlug && (
+          <a href="/articles" class="inline-block mt-4 text-sm font-medium text-black underline">
+            View all articles
+          </a>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- CTA Section -->
+  <FinalCTA
+    headline="Ready to stop driving?"
+    subheadline="No pitch. No pressure. Let's have a conversation about whether this operational model fits your situation."
+    ctaText="Book a Call"
+    ctaUrl="https://calendly.com/onlinenexusmarketing/strategy-meeting"
+    ctaExternal={true}
+    tagline="NEXT STEP"
+  />
+
+  <SiteFooter
+    logoUrl={footerContent.logoUrl}
+    tagline={footerContent.tagline}
+  />
+</BaseLayout>

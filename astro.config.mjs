@@ -20,6 +20,7 @@ export default defineConfig({
         'https://www.onlinenexusmarketing.com/who-am-i',
         'https://www.onlinenexusmarketing.com/what-gets-handled',
         'https://www.onlinenexusmarketing.com/faq',
+        'https://www.onlinenexusmarketing.com/articles',
       ],
     }),
   ],
