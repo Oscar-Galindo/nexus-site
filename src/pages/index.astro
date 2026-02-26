@@ -10,6 +10,7 @@ import SiteFooter from '@/components/global/SiteFooter.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import ArticleCard from '@/components/cards/ArticleCard.astro';
 import { getPageBySlug, getArticles } from '@/lib/contentful';
+import { CloudinaryPresets } from '@/lib/cloudinary';
 
 // Fetch home page and latest articles from Contentful
 const [page, { articles: recentArticles }] = await Promise.all([
@@ -26,9 +27,19 @@ const footerContent = {
 
 const title = page?.title || defaultTitle;
 const description = page?.description || 'Full ownership of your digital operations. Website, content, CRM, and more — handled by one person who owns it all.';
+
+// Extract hero image URL for LCP preload
+const heroImageAsset = (page?.heroSection as any)?.image;
+const heroImageRaw = heroImageAsset?.fields?.file?.url;
+const heroImageUrl = heroImageRaw
+  ? CloudinaryPresets.hero(heroImageRaw.startsWith('//') ? 'https:' + heroImageRaw : heroImageRaw, 800)
+  : null;
 ---
 
 <BaseLayout title={title} description={description}>
+  {heroImageUrl && (
+    <link slot="preload" rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
+  )}
   
   <Navigation currentPath="/" />
 
@@ -74,7 +85,7 @@ const description = page?.description || 'Full ownership of your digital operati
       <div class="max-w-6xl mx-auto">
         <div class="flex items-end justify-between mb-12">
           <div>
-            <p class="text-xs font-semibold tracking-widest uppercase text-neutral-400 mb-3">Writing</p>
+            <p class="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-3">Writing</p>
             <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-black">Thoughts on Operations</h2>
           </div>
           <a href="/articles" class="hidden md:inline-flex items-center gap-1 text-sm font-medium text-neutral-500 hover:text-black transition-colors">

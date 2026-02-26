@@ -108,10 +108,10 @@ const pageDescription = article.excerpt || '';
             <span class="text-xs font-semibold tracking-widest uppercase text-neutral-500">
               {article.category.name}
             </span>
-            <span class="text-neutral-300">·</span>
-            <span class="text-sm text-neutral-400">{formattedDate}</span>
-            <span class="text-neutral-300">·</span>
-            <span class="text-sm text-neutral-400">{article.readingTime} min read</span>
+            <span class="text-neutral-400">·</span>
+            <span class="text-sm text-neutral-500">{formattedDate}</span>
+            <span class="text-neutral-400">·</span>
+            <span class="text-sm text-neutral-500">{article.readingTime} min read</span>
           </div>
 
           <!-- Title -->
@@ -191,8 +191,8 @@ const pageDescription = article.excerpt || '';
                         <span class="text-xs font-semibold tracking-widest uppercase text-neutral-400">
                           {r.category?.name || ''}
                         </span>
-                        <span class="text-neutral-300">·</span>
-                        <span class="text-xs text-neutral-400">{r.readingTime} min read</span>
+                        <span class="text-neutral-400">·</span>
+                        <span class="text-xs text-neutral-500">{r.readingTime} min read</span>
                       </div>
                       <p class="text-sm font-semibold text-black group-hover:text-neutral-600 transition-colors leading-snug">
                         {r.title}

@@ -127,7 +127,11 @@ const isAfterYouBook = internalName.includes('After You Book');
             <img
               src={CloudinaryPresets.hero(ctfUrl(f.image), 800)}
               alt={f.image.fields?.title || f.headline || 'Hero image'}
+              width="800"
+              height="1000"
               class="absolute inset-0 w-full h-full object-cover grayscale-[10%] hover:grayscale-0 transition-all duration-700"
+              loading="eager"
+              fetchpriority="high"
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-50"></div>
           </div>
@@ -423,6 +427,8 @@ const isAfterYouBook = internalName.includes('After You Book');
           <img
             src={CloudinaryPresets.hero(ctfUrl(f.image) || 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1768967465/DSC07006_mh1pnc.jpg', 800)}
             alt={f.image?.fields?.title || f.heading || 'Oscar Galindo'}
+            width="800"
+            height="1000"
             class="absolute inset-0 w-full h-full object-cover"
           />
           <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-30"></div>
@@ -483,6 +489,8 @@ const isAfterYouBook = internalName.includes('After You Book');
         <img
           src={CloudinaryPresets.hero(ctfUrl(f.image) || 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1768967465/DSC07006_mh1pnc.jpg', 800)}
           alt={f.image?.fields?.title || f.heading || 'Oscar Galindo'}
+          width="800"
+          height="800"
           class="w-full h-full object-cover"
         />
       </div>

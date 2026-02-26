@@ -63,16 +63,21 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#000000" />
     
-    <!-- Fonts - Plus Jakarta Sans + Inter -->
+    <!-- Fonts - Plus Jakarta Sans + Inter (non-blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    </noscript>
     
-    <!-- Iconify for Solar icons -->
-    <script src="https://code.iconify.design/iconify-icon/2.0.0/iconify-icon.min.js"></script>
+    <!-- Iconify for Solar icons (deferred) -->
+    <script defer src="https://code.iconify.design/iconify-icon/2.0.0/iconify-icon.min.js"></script>
     
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -108,7 +113,9 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <!-- Main content -->
-    <slot />
+    <main>
+      <slot />
+    </main>
     
     <!-- Scripts -->
     <slot name="scripts" />
