@@ -4,6 +4,8 @@
  * Fixed nav with centered links
  */
 
+import { CloudinaryPresets } from '@/lib/cloudinary';
+
 export interface Props {
   logoUrl: string;
 }
@@ -18,7 +20,7 @@ const {
     <!-- Logo (Left) -->
     <a href="/" class="relative z-10">
       <img
-        src={logoUrl}
+        src={CloudinaryPresets.logo(logoUrl, 48)}
         alt="Online Nexus"
         class="h-10 md:h-12 invert"
       />

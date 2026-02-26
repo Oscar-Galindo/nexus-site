@@ -4,6 +4,8 @@
  * Black background with white text
  */
 
+import { CloudinaryPresets } from '@/lib/cloudinary';
+
 export interface Props {
   headline: string;
   subheadline: string;
@@ -47,7 +49,7 @@ const currentYear = new Date().getFullYear();
     <div class="mt-24 pt-8 border-t border-neutral-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-neutral-500">
       <div>
         <img
-          src={logoUrl}
+          src={CloudinaryPresets.logo(logoUrl, 56)}
           alt="Online Nexus"
           class="h-14 opacity-80"
         />

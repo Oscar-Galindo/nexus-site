@@ -6,6 +6,7 @@
  */
 
 import { getSiteNavigation, getAssetUrl } from '@/lib/contentful';
+import { CloudinaryPresets } from '@/lib/cloudinary';
 
 export interface Props {
   currentPath?: string;
@@ -51,7 +52,7 @@ function isActive(url: string): boolean {
     <!-- Logo (Links to Home) -->
     <a href="/" class="block z-20 group">
       <img
-        src={logoUrl}
+        src={CloudinaryPresets.logo(logoUrl, 40)}
         alt="Online Nexus Marketing"
         class="h-8 md:h-10 w-auto object-contain group-hover:opacity-70 transition-opacity duration-200"
       />

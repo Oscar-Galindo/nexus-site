@@ -4,6 +4,8 @@
  * Dynamically renders page sections based on their Contentful type
  */
 
+import { getCloudinaryUrl, CloudinaryPresets } from '@/lib/cloudinary';
+
 export interface Props {
   section: any;
   index?: number;
@@ -13,6 +15,12 @@ const { section, index = 0 } = Astro.props;
 
 const contentType = section.contentType;
 const f = section; // fields shorthand
+
+function ctfUrl(asset: any): string {
+  const url = asset?.fields?.file?.url;
+  if (!url) return '';
+  return typeof url === 'string' && url.startsWith('//') ? 'https:' + url : url;
+}
 const internalName = f.internalName || '';
 
 // Icon mappings for problem cards
@@ -117,7 +125,7 @@ const isAfterYouBook = internalName.includes('After You Book');
         <div class="md:col-span-5 lg:col-span-4 relative">
           <div class="relative w-full aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border border-neutral-100 bg-neutral-100">
             <img
-              src={f.image.fields?.file?.url?.startsWith('//') ? 'https:' + f.image.fields.file.url : f.image.fields?.file?.url}
+              src={CloudinaryPresets.hero(ctfUrl(f.image), 800)}
               alt={f.image.fields?.title || f.headline || 'Hero image'}
               class="absolute inset-0 w-full h-full object-cover grayscale-[10%] hover:grayscale-0 transition-all duration-700"
             />
@@ -413,7 +421,7 @@ const isAfterYouBook = internalName.includes('After You Book');
       <div class="md:col-span-5 relative">
         <div class="relative w-full aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border border-neutral-100 bg-white">
           <img
-            src={f.image?.fields?.file?.url ? (f.image.fields.file.url.startsWith('//') ? 'https:' + f.image.fields.file.url : f.image.fields.file.url) : 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1768967465/DSC07006_mh1pnc.jpg'}
+            src={CloudinaryPresets.hero(ctfUrl(f.image) || 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1768967465/DSC07006_mh1pnc.jpg', 800)}
             alt={f.image?.fields?.title || f.heading || 'Oscar Galindo'}
             class="absolute inset-0 w-full h-full object-cover"
           />
@@ -473,7 +481,7 @@ const isAfterYouBook = internalName.includes('After You Book');
       {/* Photo */}
       <div class="relative w-full aspect-square bg-neutral-100 rounded-lg overflow-hidden">
         <img
-          src={f.image?.fields?.file?.url ? (f.image.fields.file.url.startsWith('//') ? 'https:' + f.image.fields.file.url : f.image.fields.file.url) : 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1768967465/DSC07006_mh1pnc.jpg'}
+          src={CloudinaryPresets.hero(ctfUrl(f.image) || 'https://res.cloudinary.com/dhs9d8tou/image/upload/v1768967465/DSC07006_mh1pnc.jpg', 800)}
           alt={f.image?.fields?.title || f.heading || 'Oscar Galindo'}
           class="w-full h-full object-cover"
         />
@@ -561,17 +569,19 @@ const isAfterYouBook = internalName.includes('After You Book');
           <div class="logo-carousel-track flex items-center gap-16 py-6">
             {f.logos.map((logo: any) => (
               <img
-                src={logo.fields?.file?.url?.startsWith('//') ? 'https:' + logo.fields.file.url : logo.fields?.file?.url}
+                src={CloudinaryPresets.logo(ctfUrl(logo), 32)}
                 alt={logo.fields?.title || 'Logo'}
                 class="h-8 md:h-8 max-w-[120px] md:max-w-[140px] w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 shrink-0 logo-white"
+                loading="lazy"
               />
             ))}
             {/* Duplicate for seamless loop */}
             {f.logos.map((logo: any) => (
               <img
-                src={logo.fields?.file?.url?.startsWith('//') ? 'https:' + logo.fields.file.url : logo.fields?.file?.url}
+                src={CloudinaryPresets.logo(ctfUrl(logo), 32)}
                 alt={logo.fields?.title || 'Logo'}
                 class="h-8 md:h-8 max-w-[120px] md:max-w-[140px] w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 shrink-0 logo-white"
+                loading="lazy"
               />
             ))}
           </div>
@@ -869,17 +879,19 @@ const isAfterYouBook = internalName.includes('After You Book');
           <div class="social-logo-track flex items-center gap-16 py-4">
             {f.logos.map((logo: any, i: number) => (
               <img
-                src={logo.fields?.file?.url?.startsWith('//') ? 'https:' + logo.fields.file.url : logo.fields?.file?.url}
+                src={CloudinaryPresets.logo(ctfUrl(logo), 32)}
                 alt={logo.fields?.title || (f.clients && f.clients[i]) || 'Client logo'}
                 class="h-8 md:h-8 max-w-[120px] md:max-w-[140px] w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 shrink-0 logo-white"
+                loading="lazy"
               />
             ))}
             {/* Duplicate for seamless loop */}
             {f.logos.map((logo: any, i: number) => (
               <img
-                src={logo.fields?.file?.url?.startsWith('//') ? 'https:' + logo.fields.file.url : logo.fields?.file?.url}
+                src={CloudinaryPresets.logo(ctfUrl(logo), 32)}
                 alt={logo.fields?.title || (f.clients && f.clients[i]) || 'Client logo'}
                 class="h-8 md:h-8 max-w-[120px] md:max-w-[140px] w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 shrink-0 logo-white"
+                loading="lazy"
               />
             ))}
           </div>

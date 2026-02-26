@@ -4,6 +4,8 @@
  * Black footer with logo, tagline, and copyright
  */
 
+import { CloudinaryPresets } from '@/lib/cloudinary';
+
 export interface Props {
   logoUrl: string;
   tagline?: string;
@@ -22,7 +24,7 @@ const {
     
     <!-- Logo -->
     <img
-      src={logoUrl}
+      src={CloudinaryPresets.logo(logoUrl, 40)}
       alt="Online Nexus Marketing"
       class="h-10 w-auto mb-8 invert opacity-90"
     />

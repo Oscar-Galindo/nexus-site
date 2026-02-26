@@ -4,6 +4,8 @@
  * Two-column layout with Oscar photo
  */
 
+import Image from '@/components/ui/Image.astro';
+
 export interface Props {
   headline: string;
   subheadline: string;
@@ -51,9 +53,11 @@ const [line1, line2] = headline.includes('without')
       <div class="md:col-span-5 lg:col-span-4">
         <!-- Image Container -->
         <div class="relative w-full aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border border-neutral-100">
-          <img
+          <Image
             src={imageUrl}
             alt="Oscar Galindo"
+            preset="hero"
+            width={800}
             class="absolute inset-0 w-full h-full object-cover grayscale-[10%] hover:grayscale-0 transition-all duration-700"
           />
           <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-50"></div>

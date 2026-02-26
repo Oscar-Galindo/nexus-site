@@ -4,6 +4,8 @@
  * Used in listing grid and featured article slot
  */
 
+import Image from '@/components/ui/Image.astro';
+
 export interface Props {
   slug: string;
   title: string;
@@ -42,9 +44,11 @@ const imgSrc = imageUrl || placeholderImg;
   <a href={`/articles/${slug}`} class="group block">
     <div class="grid md:grid-cols-2 gap-8 items-center">
       <div class="overflow-hidden rounded-xl">
-        <img
+        <Image
           src={imgSrc}
           alt={imageAlt || title}
+          preset="card"
+          width={800}
           class="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
@@ -70,9 +74,11 @@ const imgSrc = imageUrl || placeholderImg;
 ) : (
   <a href={`/articles/${slug}`} class="group block">
     <div class="overflow-hidden rounded-xl mb-4">
-      <img
+      <Image
         src={imgSrc}
         alt={imageAlt || title}
+        preset="card"
+        width={600}
         class="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500"
         loading="lazy"
       />

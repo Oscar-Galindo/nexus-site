@@ -4,6 +4,8 @@
  * Two-column layout with photo and bio text
  */
 
+import Image from '@/components/ui/Image.astro';
+
 export interface Props {
   name: string;
   imageUrl: string;
@@ -31,9 +33,11 @@ const isLeft = imagePosition === 'left';
       'relative w-full aspect-square bg-neutral-100 rounded-lg overflow-hidden',
       !isLeft && 'md:order-2'
     ]}>
-      <img
+      <Image
         src={imageUrl}
         alt={name}
+        preset="hero"
+        width={800}
         class:list={[
           'w-full h-full object-cover',
           grayscale && 'filter grayscale contrast-125'
