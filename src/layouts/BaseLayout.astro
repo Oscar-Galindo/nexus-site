@@ -105,6 +105,409 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-PKSF2LTG');</script>
+
+    <!-- Consent-First Lead Capture → GHL -->
+    <style is:inline id="on-lead-capture-styles">
+      #on-consent-banner,
+      #on-lead-modal,
+      #on-error-toast {
+        font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        box-sizing: border-box;
+      }
+      #on-consent-banner *,
+      #on-lead-modal * { box-sizing: border-box; }
+      #on-consent-banner {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: #0A0A0A;
+        border-top: 1px solid #262626;
+        padding: 18px 24px;
+        z-index: 99999;
+        transform: translateY(100%);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+      }
+      #on-consent-banner.on-visible { transform: translateY(0); }
+      .on-consent-inner {
+        max-width: 960px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+      .on-consent-text {
+        flex: 1;
+        min-width: 260px;
+        font-size: 13px;
+        color: #737373;
+        line-height: 1.6;
+        margin: 0;
+      }
+      .on-consent-text strong { color: #A3A3A3; }
+      .on-consent-text a {
+        color: #3366FF;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      .on-consent-actions {
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+      .on-btn-accept {
+        background: #3366FF;
+        color: #fff;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.2s;
+      }
+      .on-btn-accept:hover { background: #2952CC; }
+      .on-btn-decline {
+        background: transparent;
+        color: #525252;
+        border: 1px solid #262626;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: color 0.2s, border-color 0.2s;
+      }
+      .on-btn-decline:hover { color: #A3A3A3; border-color: #404040; }
+      #on-lead-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 100000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      #on-lead-modal.on-visible { opacity: 1; pointer-events: all; }
+      .on-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.80);
+        backdrop-filter: blur(4px);
+      }
+      .on-card {
+        position: relative;
+        background: #FFFFFF;
+        border: 1px solid #E5E5E5;
+        border-radius: 12px;
+        padding: 38px 36px;
+        width: 100%;
+        max-width: 460px;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+        transform: translateY(16px);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      #on-lead-modal.on-visible .on-card { transform: translateY(0); }
+      .on-close {
+        position: absolute;
+        top: 14px; right: 16px;
+        background: none;
+        border: none;
+        color: #A3A3A3;
+        font-size: 22px;
+        cursor: pointer;
+        line-height: 1;
+        transition: color 0.2s;
+      }
+      .on-close:hover { color: #171717; }
+      .on-eyebrow {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #FF7A0F;
+        margin-bottom: 8px;
+      }
+      .on-card h2 {
+        font-size: 1.45rem;
+        font-weight: 800;
+        color: #171717;
+        line-height: 1.2;
+        margin: 0 0 10px;
+      }
+      .on-card > p {
+        font-size: 13.5px;
+        color: #525252;
+        line-height: 1.65;
+        margin: 0 0 24px;
+      }
+      .on-form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .on-field { margin-bottom: 14px; }
+      .on-field label {
+        display: block;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #404040;
+        margin-bottom: 5px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .on-field input {
+        width: 100%;
+        background: #FAFAFA;
+        border: 1px solid #D4D4D4;
+        border-radius: 6px;
+        padding: 11px 13px;
+        font-size: 13.5px;
+        color: #171717;
+        outline: none;
+        transition: border-color 0.2s, background 0.2s;
+      }
+      .on-field input::placeholder { color: #A3A3A3; }
+      .on-field input:focus {
+        border-color: #3366FF;
+        background: #FFFFFF;
+        box-shadow: 0 0 0 3px rgba(51,102,255,0.1);
+      }
+      .on-field input.on-error { border-color: #EF4444; }
+      .on-submit {
+        width: 100%;
+        background: #3366FF;
+        color: #fff;
+        border: none;
+        padding: 13px;
+        border-radius: 6px;
+        font-size: 14.5px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 6px;
+        transition: background 0.2s, transform 0.2s;
+      }
+      .on-submit:hover:not(:disabled) { background: #2952CC; transform: translateY(-1px); }
+      .on-submit:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+      .on-disclaimer {
+        font-size: 11px;
+        color: #737373;
+        text-align: center;
+        margin-top: 12px;
+        line-height: 1.5;
+      }
+      .on-success {
+        text-align: center;
+        padding: 10px 0;
+        display: none;
+      }
+      .on-success-icon {
+        width: 58px; height: 58px;
+        background: #22C55E;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 18px;
+        font-size: 24px;
+        color: #fff;
+      }
+      .on-success h3 {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #171717;
+        margin: 0 0 10px;
+      }
+      .on-success p {
+        font-size: 13.5px;
+        color: #525252;
+        line-height: 1.6;
+        margin: 0;
+      }
+      #on-error-toast {
+        position: fixed;
+        bottom: 24px; left: 50%;
+        transform: translateX(-50%) translateY(70px);
+        background: #EF4444;
+        color: #fff;
+        padding: 11px 20px;
+        border-radius: 6px;
+        font-size: 13.5px;
+        font-weight: 600;
+        z-index: 100001;
+        transition: transform 0.3s ease;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+      #on-error-toast.on-visible { transform: translateX(-50%) translateY(0); }
+      @media (max-width: 500px) {
+        .on-card { padding: 28px 20px; }
+        .on-form-row { grid-template-columns: 1fr; }
+        .on-consent-actions { width: 100%; }
+        .on-btn-accept, .on-btn-decline { flex: 1; text-align: center; }
+      }
+    </style>
+
+    <script is:inline>
+    (function () {
+      var WEBHOOK   = 'https://services.leadconnectorhq.com/hooks/1YQY23qrVNZxkEzRwbyD/webhook-trigger/087a596b-c744-4478-8b66-34ef9c404239';
+      var TAGS      = ['website-lead', 'consent-captured', 'audit-request'];
+      var SOURCE    = 'website-consent-capture';
+      var OFFER     = 'Free Digital Operations Audit';
+
+      if (localStorage.getItem('on_lead_captured')) return;
+
+      document.addEventListener('DOMContentLoaded', function () {
+
+        document.body.insertAdjacentHTML('beforeend',
+          '<div id="on-consent-banner" role="dialog" aria-label="Cookie preferences">' +
+            '<div class="on-consent-inner">' +
+              '<p class="on-consent-text">' +
+                'We use essential cookies to make our site work. With your consent, we may also use non-essential ' +
+                'cookies to improve user experience, personalize content, <strong>identify email for promotions</strong>, ' +
+                'customize advertisements and analyze website traffic. ' +
+                'You can change your cookie settings at any time by clicking <a id="on-prefs-link">preferences</a>.' +
+              '</p>' +
+              '<div class="on-consent-actions">' +
+                '<button class="on-btn-accept" id="on-accept-btn">Accept &amp; Continue</button>' +
+                '<button class="on-btn-decline" id="on-decline-btn">Decline</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<div id="on-lead-modal" role="dialog" aria-modal="true" aria-label="' + OFFER + '">' +
+            '<div class="on-backdrop" id="on-backdrop"></div>' +
+            '<div class="on-card">' +
+              '<button class="on-close" id="on-close-btn" aria-label="Close">&times;</button>' +
+              '<div id="on-form-wrap">' +
+                '<div class="on-eyebrow">Free Offer \u2014 Limited Spots</div>' +
+                '<h2>Claim Your ' + OFFER + '</h2>' +
+                '<p>We\'ll review your digital stack, find the gaps that are costing you leads, and send you a personalized action plan \u2014 no strings attached.</p>' +
+                '<form id="on-lead-form" novalidate>' +
+                  '<div class="on-form-row">' +
+                    '<div class="on-field">' +
+                      '<label for="on-fname">First Name *</label>' +
+                      '<input type="text" id="on-fname" placeholder="Jane" autocomplete="given-name" />' +
+                    '</div>' +
+                    '<div class="on-field">' +
+                      '<label for="on-lname">Last Name</label>' +
+                      '<input type="text" id="on-lname" placeholder="Doe" autocomplete="family-name" />' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="on-field">' +
+                    '<label for="on-email">Work Email *</label>' +
+                    '<input type="email" id="on-email" placeholder="jane@yourbusiness.com" autocomplete="email" />' +
+                  '</div>' +
+                  '<div class="on-field">' +
+                    '<label for="on-phone">Phone (optional)</label>' +
+                    '<input type="tel" id="on-phone" placeholder="+1 (555) 000-0000" autocomplete="tel" />' +
+                  '</div>' +
+                  '<div class="on-field">' +
+                    '<label for="on-company">Business Name</label>' +
+                    '<input type="text" id="on-company" placeholder="Your Business LLC" autocomplete="organization" />' +
+                  '</div>' +
+                  '<button type="submit" class="on-submit" id="on-submit-btn">Get My Free Audit \u2192</button>' +
+                '</form>' +
+                '<p class="on-disclaimer">By submitting you agree to receive communications from Online Nexus Marketing. Unsubscribe anytime.</p>' +
+              '</div>' +
+              '<div class="on-success" id="on-success-wrap">' +
+                '<div class="on-success-icon">\u2713</div>' +
+                '<h3>You\'re all set!</h3>' +
+                '<p>Your audit request is in. We\'ll send your custom action plan within 1 business day \u2014 check your inbox (and spam, just in case).</p>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<div id="on-error-toast">Something went wrong \u2014 please try again.</div>'
+        );
+
+        document.getElementById('on-accept-btn').addEventListener('click', acceptConsent);
+        document.getElementById('on-decline-btn').addEventListener('click', declineConsent);
+        document.getElementById('on-close-btn').addEventListener('click', closeModal);
+        document.getElementById('on-backdrop').addEventListener('click', closeModal);
+        document.getElementById('on-lead-form').addEventListener('submit', handleSubmit);
+        document.getElementById('on-prefs-link').addEventListener('click', showPrefs);
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+        if (localStorage.getItem('on_consent_accepted')) {
+          setTimeout(showModal, 2500);
+        } else {
+          setTimeout(showBanner, 1500);
+        }
+      });
+
+      function showBanner() { var b = document.getElementById('on-consent-banner'); if (b) b.classList.add('on-visible'); }
+      function hideBanner()  { var b = document.getElementById('on-consent-banner'); if (b) b.classList.remove('on-visible'); }
+      function showModal()   { var m = document.getElementById('on-lead-modal'); if (m) m.classList.add('on-visible'); }
+      function closeModal()  { var m = document.getElementById('on-lead-modal'); if (m) m.classList.remove('on-visible'); }
+      function showPrefs()   { alert('To opt out of non-essential cookies, click Decline on the consent banner.'); }
+
+      function acceptConsent() {
+        var ts = new Date().toISOString();
+        localStorage.setItem('on_consent_accepted', 'true');
+        localStorage.setItem('on_consent_ts', ts);
+        hideBanner();
+        setTimeout(showModal, 600);
+      }
+      function declineConsent() { hideBanner(); }
+
+      function getUTMs() {
+        var p = new URLSearchParams(window.location.search);
+        return {
+          utm_source: p.get('utm_source') || '', utm_medium: p.get('utm_medium') || '',
+          utm_campaign: p.get('utm_campaign') || '', utm_term: p.get('utm_term') || '',
+          utm_content: p.get('utm_content') || '', page_url: window.location.href, referrer: document.referrer || ''
+        };
+      }
+
+      function validateForm() {
+        var valid = true;
+        var fname = document.getElementById('on-fname');
+        var email = document.getElementById('on-email');
+        [fname, email].forEach(function(f) { f.classList.remove('on-error'); });
+        if (!fname.value.trim()) { fname.classList.add('on-error'); fname.focus(); valid = false; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { email.classList.add('on-error'); if (valid) email.focus(); valid = false; }
+        return valid;
+      }
+
+      async function handleSubmit(e) {
+        e.preventDefault();
+        if (!validateForm()) return;
+        var btn = document.getElementById('on-submit-btn');
+        btn.disabled = true; btn.textContent = 'Sending\u2026';
+        var payload = {
+          firstName: document.getElementById('on-fname').value.trim(),
+          lastName:  document.getElementById('on-lname').value.trim(),
+          email:     document.getElementById('on-email').value.trim(),
+          phone:     document.getElementById('on-phone').value.trim(),
+          company:   document.getElementById('on-company').value.trim(),
+          source: SOURCE, tags: TAGS,
+          customField: Object.assign(getUTMs(), {
+            consent_given: 'true',
+            consent_timestamp: localStorage.getItem('on_consent_ts') || new Date().toISOString()
+          })
+        };
+        try {
+          var res = await fetch(WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+          if (res.ok) {
+            localStorage.setItem('on_lead_captured', 'true');
+            document.getElementById('on-form-wrap').style.display = 'none';
+            document.getElementById('on-success-wrap').style.display = 'block';
+          } else { throw new Error('bad response'); }
+        } catch (err) {
+          btn.disabled = false; btn.textContent = 'Get My Free Audit \u2192';
+          var toast = document.getElementById('on-error-toast');
+          toast.classList.add('on-visible');
+          setTimeout(function() { toast.classList.remove('on-visible'); }, 4000);
+        }
+      }
+    })();
+    </script>
   </head>
   
   <body class="antialiased bg-neutral-50 text-neutral-700">
